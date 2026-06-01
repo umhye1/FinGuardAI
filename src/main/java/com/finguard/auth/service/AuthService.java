@@ -1,13 +1,15 @@
 package com.finguard.auth.service;
 
+import com.finguard.auth.dto.request.LoginRequest;
+import com.finguard.auth.dto.response.LoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.finguard.user.repository.UserRepository;
 import com.finguard.user.domain.User;
-import com.finguard.auth.dto.SignupRequest;
-import com.finguard.auth.dto.SignupResponse;
+import com.finguard.auth.dto.request.SignupRequest;
+import com.finguard.auth.dto.response.SignupResponse;
 import com.finguard.user.domain.UserRole;
 
 @Service
@@ -33,5 +35,20 @@ public class AuthService {
         User savedUser = userRepository.save(user);
 
         return SignupResponse.from(savedUser);
+    }
+
+    @Transactional(readOnly = true)
+    public LoginResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new IllegalArgumentException("해당 이메일이 존재하지 않습니다."));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+        }
+
+        String accessToken = "temporary-access-token"; // 임시 토큰
+        String refreshToken = "temporary-refresh-token";
+
+        return LoginResponse.of(user, accessToken, refreshToken);
     }
 }

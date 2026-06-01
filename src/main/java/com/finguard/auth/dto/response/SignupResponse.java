@@ -1,4 +1,4 @@
-package com.finguard.auth.dto;
+package com.finguard.auth.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

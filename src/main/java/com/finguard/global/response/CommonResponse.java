@@ -18,11 +18,11 @@ public class CommonResponse<T> {
         return new CommonResponse<>(200, message, data);
     }
 
-    public static <T> CommonResponse<Void> success(String message) {
+    public static CommonResponse<Void> success(String message) {
         return new CommonResponse<>(200,message, null);
     }
 
-    public static <T> CommonResponse<Void>fail(int statusCode, String message) {
+    public static CommonResponse<Void>fail(int statusCode, String message) {
         return new CommonResponse<>(statusCode,message,null);
     }
 }
