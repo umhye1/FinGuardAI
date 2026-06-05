@@ -2,6 +2,8 @@ package com.finguard.auth.service;
 
 import com.finguard.auth.dto.request.LoginRequest;
 import com.finguard.auth.dto.response.LoginResponse;
+import com.finguard.global.exception.DuplicateEmailException;
+import com.finguard.global.exception.LoginFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +25,7 @@ public class AuthService {
     @Transactional // 회원가입은 조회만 하면 안됨 - transactional 다시 붙임
     public SignupResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {  // 이메일 정보 가져와서 존재하면
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new DuplicateEmailException("이미 가입된 이메일입니다.");
         }
         User user = User.builder()
                 .email(request.getEmail())
@@ -40,10 +42,10 @@ public class AuthService {
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new IllegalArgumentException("해당 이메일이 존재하지 않습니다."));
+                .orElseThrow(()-> new LoginFailedException("이메일 또는 비밀번호가 올바르지 않습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.");
+            throw new LoginFailedException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
         String accessToken = "temporary-access-token"; // 임시 토큰
