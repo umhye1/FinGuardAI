@@ -1,9 +1,12 @@
 package com.finguard.auth.service;
 
 import com.finguard.auth.dto.request.LoginRequest;
+import com.finguard.auth.dto.request.LogoutRequest;
 import com.finguard.auth.dto.response.LoginResponse;
+import com.finguard.auth.dto.response.MyInfoResponse;
 import com.finguard.global.exception.DuplicateEmailException;
 import com.finguard.global.exception.LoginFailedException;
+import com.finguard.global.exception.UnauthorizedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -52,5 +55,30 @@ public class AuthService {
         String refreshToken = "temporary-refresh-token";
 
         return LoginResponse.of(user, accessToken, refreshToken);
+    }
+
+    @Transactional
+    public void logout(String authorizationHeader, LogoutRequest request) {
+        String accessToken = extractAccessToken(authorizationHeader);
+        System.out.println("logout accessToken = " + accessToken);
+        System.out.println("logout refreshToken = " + request.getRefreshToken());
+
+    }
+
+    private String extractAccessToken(String authorizationHeader) {
+        if (authorizationHeader == null && !authorizationHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("인증 정보가 올바르지 않습니다.");
+        }
+        return authorizationHeader.substring(7);
+    }
+
+    @Transactional(readOnly = true)
+    public MyInfoResponse getMyInfo(String authorizationHeader) {
+        String accessToken = extractAccessToken(authorizationHeader);
+        // TODO: JWT에서 email 추출해야 함
+        // String email = jwtTokenProvider.getEmail(accessToken);
+
+        // 임시 테스트용으로는 토큰만으로 이메일을 알 수 없어서 실제 구현 불가
+        throw new UnauthorizedException("내 정보 조회에 실패했습니다.");
     }
 }

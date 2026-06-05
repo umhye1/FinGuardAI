@@ -30,4 +30,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(CommonResponse.fail(400, e.getMessage()));
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<CommonResponse<Void>> handleUnauthorizedException(UnauthorizedException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(CommonResponse.fail(401, e.getMessage()));
+    }
 }
