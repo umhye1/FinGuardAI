@@ -47,13 +47,6 @@ public class KeywordService {
                 .toList();
     }
 
-    public KeywordResponse getKeyword(Long keywordId) {
-        RiskKeyword riskKeyword = keywordRepository.findById(keywordId)
-                .orElseThrow(()-> new IllegalArgumentException("키워드를 찾을 수 없습니다."));
-
-        return KeywordResponse.from(riskKeyword);
-
-    }
 
     @Transactional
     public KeywordResponse updateKeyword(Long keywordId, KeywordUpdateRequest request) {

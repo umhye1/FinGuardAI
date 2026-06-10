@@ -51,9 +51,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("요청 URI = " + request.getRequestURI());
-        System.out.println("email = " + email);
-        System.out.println("role = " + user.getRole());
 
 
         SimpleGrantedAuthority authority =
@@ -66,9 +63,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        System.out.println("authentication = " + SecurityContextHolder.getContext().getAuthentication());
-        System.out.println("isAuthenticated = " + SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
 
         filterChain.doFilter(request, response);
     }
