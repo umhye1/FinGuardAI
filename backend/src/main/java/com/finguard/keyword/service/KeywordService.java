@@ -1,5 +1,7 @@
 package com.finguard.keyword.service;
 
+import com.finguard.global.exception.ConflictException;
+import com.finguard.global.exception.NotFoundException;
 import com.finguard.keyword.domain.RiskKeyword;
 import com.finguard.keyword.dto.request.KeywordCreateRequest;
 import com.finguard.keyword.dto.request.KeywordScoreUpdateRequest;
@@ -22,7 +24,7 @@ public class KeywordService {
     @Transactional
     public KeywordResponse createKeyword(KeywordCreateRequest request) {
         if(keywordRepository.existsByKeyword(request.getKeyword())){
-            throw new IllegalArgumentException("이미 등록된 키워드 입니다.");
+            throw new ConflictException("이미 등록된 키워드입니다.");
         }
 
         RiskKeyword riskKeyword = RiskKeyword.builder()
@@ -50,8 +52,13 @@ public class KeywordService {
 
     @Transactional
     public KeywordResponse updateKeyword(Long keywordId, KeywordUpdateRequest request) {
-        RiskKeyword riskKeyword =  keywordRepository.findById(keywordId)
-                .orElseThrow(()-> new IllegalArgumentException("키워드를 찾을 수 없습니다."));
+
+        RiskKeyword riskKeyword = getKeywordById(keywordId);
+
+        if (!riskKeyword.getKeyword().equals(request.getKeyword())
+                && keywordRepository.existsByKeyword(request.getKeyword())) {
+            throw new ConflictException("이미 등록된 키워드입니다.");
+        }
 
         riskKeyword.update(
                 request.getKeyword(),
@@ -66,21 +73,24 @@ public class KeywordService {
 
     @Transactional
     public void deactivateKeyword(Long keywordId) {
-        RiskKeyword riskKeyword = keywordRepository.findById(keywordId)
-                .orElseThrow(()-> new IllegalArgumentException("키워드를 찾을 수 없습니다."));
+        RiskKeyword riskKeyword = getKeywordById(keywordId);
 
         riskKeyword.deactivate();
 
     }
 
     @Transactional
-    public KeywordResponse updateRiskscore(Long keywordId, KeywordScoreUpdateRequest request) {
-        RiskKeyword riskKeyword = keywordRepository.findById(keywordId)
-                .orElseThrow(()-> new IllegalArgumentException("키워드를 찾을 수 없습니다."));
+    public KeywordResponse updateRiskScore(Long keywordId, KeywordScoreUpdateRequest request) {
+        RiskKeyword riskKeyword = getKeywordById(keywordId);
 
         riskKeyword.updateRiskScore(request.getRiskScore());
 
         return KeywordResponse.from(riskKeyword);
+    }
+
+    private RiskKeyword getKeywordById(Long keywordId) {
+        return keywordRepository.findById(keywordId)
+                .orElseThrow(() -> new NotFoundException("위험 키워드를 찾을 수 없습니다."));
     }
 
 }

@@ -11,6 +11,9 @@ import com.finguard.analysis.dto.response.AnalysisHistoryResponse;
 import com.finguard.analysis.dto.response.AnalysisResponse;
 import com.finguard.analysis.dto.response.DetectedKeywordResponse;
 import com.finguard.analysis.repository.AnalysisLogRepository;
+import com.finguard.global.exception.BadRequestException;
+import com.finguard.global.exception.ForbiddenException;
+import com.finguard.global.exception.NotFoundException;
 import com.finguard.keyword.domain.RiskKeyword;
 import com.finguard.keyword.repository.KeywordRepository;
 import com.finguard.user.domain.User;
@@ -91,7 +94,7 @@ public class AnalysisService {
     // 문자열 검증
     private void validateText(String text) {
         if (text == null || text.trim().isEmpty()) {
-            throw new IllegalArgumentException("분석할 문자를 입력해주세요.");
+            throw new BadRequestException("분석할 문자를 입력해주세요.");
         }
     }
 
@@ -103,7 +106,7 @@ public class AnalysisService {
 
         // db에서 email 정보를 기반으로 User(사용자)를 찾음
         return userRepository.findByEmail(email)
-                .orElseThrow(()-> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(()-> new NotFoundException("사용자를 찾을 수 없습니다."));
     }
 
     // 탐지된 키워드들의 카테고리를 모아서 분석 사유를 만드는 메서드
@@ -173,14 +176,11 @@ public class AnalysisService {
         // 1) 현재 로그인한 사용자 조회
         User user = getCurrentUser();
 
-        // 2) analysisId로 분석 결과 조회
-        AnalysisLog analysisLog = analysisLogRepository.findById(analysisId)
-                .orElseThrow(()-> new IllegalArgumentException("분석 결과를 찾을 수 없습니다."));
+        // 2) analysisId, user로 분석 결과 조회
+        AnalysisLog analysisLog = analysisLogRepository.findByAnalysisIdAndUser(analysisId,user)
+                .orElseThrow(()-> new ForbiddenException("해당 분석 결과에 접근할 권한이 없습니다."));
 
-        // 3) 분석 결과가 현재 사용자 것인지 확인
-        validateOwner(analysisLog,user);
-
-        // 4) DB에 저장된 JSONB 문자열을 다시 List 로 변환하기
+        // 3) DB에 저장된 JSONB 문자열을 다시 List 로 변환하기
         List<DetectedKeywordResponse> detectedKeywords =
                 convertJsonToDetectedKeywords(analysisLog.getDetectedKeywords());
 
@@ -197,14 +197,7 @@ public class AnalysisService {
                     detectedKeywordsJson, new TypeReference<List<DetectedKeywordResponse>>() {}
             );
         }catch (JsonProcessingException e){
-            throw new IllegalArgumentException("탐지 키워드 조회 중 오류가 발생했습니다.",e);
-        }
-    }
-
-    // 로그인한 사용자와 분석 결과에 접근한 사용자가 같은 사용자인지 확인
-    private void validateOwner(AnalysisLog analysisLog, User user) {
-        if(!analysisLog.getUser().getUserId().equals(user.getUserId())){
-            throw new SecurityException("해당 분석 결과에 접근할 권한이 없습니다.");
+            throw new IllegalStateException("탐지 키워드 조회 중 오류가 발생했습니다.",e);
         }
     }
 
@@ -214,14 +207,11 @@ public class AnalysisService {
         // 1) 현재 로그인한 사용자 조회
         User user = getCurrentUser();
 
-        // 2) analysisId로 분석 결과 조회
-        AnalysisLog analysisLog = analysisLogRepository.findById(analysisId)
-                .orElseThrow(()-> new IllegalArgumentException("분석 결과를 찾을 수 없습니다"));
+        // 2) analysisId, user로 분석 결과 조회
+        AnalysisLog analysisLog = analysisLogRepository.findByAnalysisIdAndUser(analysisId,user)
+                .orElseThrow(()-> new ForbiddenException("해당 분석 결과에 접근할 권한이 없습니다."));
 
-        // 3) 본인의 분석 결과인지 확인
-        validateOwner(analysisLog,user);
-
-        //4) 맞으면 삭제
+        // 3) 맞으면 삭제
         analysisLogRepository.delete(analysisLog);
     }
 
