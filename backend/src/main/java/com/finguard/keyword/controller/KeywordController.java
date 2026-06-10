@@ -68,7 +68,7 @@ public class KeywordController {
             @PathVariable Long keywordId,
             @RequestBody KeywordScoreUpdateRequest request
     ){
-        KeywordResponse response = keywordService.updateRiskscore(keywordId, request);
+        KeywordResponse response = keywordService.updateRiskScore(keywordId, request);
 
         return ResponseEntity.ok(
                 CommonResponse.success("위험 키워드 점수가 수정되었습니다.", response)

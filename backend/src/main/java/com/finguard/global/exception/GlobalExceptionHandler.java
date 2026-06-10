@@ -37,4 +37,28 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(CommonResponse.fail(401, e.getMessage()));
     }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<CommonResponse<Void>> handleBadRequestException(BadRequestException e) {
+        return ResponseEntity.badRequest()
+                .body(CommonResponse.fail(400, e.getMessage()));
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<CommonResponse<Void>> handleNotFoundException(NotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(CommonResponse.fail(404, e.getMessage()));
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<CommonResponse<Void>> handleConflictException(ConflictException e) {
+        return ResponseEntity.status(409)
+                .body(CommonResponse.fail(409, e.getMessage()));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<CommonResponse<Void>> handleForbiddenException(ForbiddenException e) {
+        return ResponseEntity.status(403)
+                .body(CommonResponse.fail(403, e.getMessage()));
+    }
 }
