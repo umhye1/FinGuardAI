@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -60,5 +61,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CommonResponse<Void>> handleForbiddenException(ForbiddenException e) {
         return ResponseEntity.status(403)
                 .body(CommonResponse.fail(403, e.getMessage()));
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<CommonResponse<Void>> handleMaxUploadSizeExceededException(
+            MaxUploadSizeExceededException e
+    ) {
+        return ResponseEntity.status(413)
+                .body(CommonResponse.fail(413, "업로드 가능한 파일 크기를 초과했습니다."));
     }
 }
