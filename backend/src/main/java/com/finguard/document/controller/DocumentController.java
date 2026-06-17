@@ -6,6 +6,7 @@ import com.finguard.document.dto.response.DocumentDetailResponse;
 import com.finguard.document.dto.response.DocumentListResponse;
 import com.finguard.document.service.DocumentService;
 import com.finguard.global.response.CommonResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,18 +28,19 @@ public class DocumentController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("title") String title,
             @RequestParam("source") String source,
-            @RequestParam(value = "sourceUrl", required = false) String sourceUrl
+            @RequestParam(value = "sourceUrl", required = false) String sourceUrl,
+             HttpServletRequest httpRequest
     ){
-        System.out.println("문서 업로드 컨트롤러 진입");
-        System.out.println("file name = " + file.getOriginalFilename());
-        System.out.println("file size = " + file.getSize());
-        System.out.println("title = " + title);
         DocumentCreateRequest request = new DocumentCreateRequest(title, source, sourceUrl);
 
-        DocumentCreateResponse response = documentService.createDocument(file, request);
+        String ipAddress = getClientIp(httpRequest);
+
+        DocumentCreateResponse response = documentService.createDocument(file, request, ipAddress);
+
         return ResponseEntity.status(201)
                 .body(CommonResponse.success(201,"문서가 업로드되었습니다.", response));
     }
+
 
     // 2. 문서 목록 조회
     @GetMapping
@@ -62,13 +64,28 @@ public class DocumentController {
 
     // 4. 문서 삭제
     @DeleteMapping("/{documentId}")
-    public ResponseEntity<CommonResponse<Void>> deleteDocument(@PathVariable Long documentId){
-        documentService.deleteDocument(documentId);
+    public ResponseEntity<CommonResponse<Void>> deleteDocument(
+            @PathVariable Long documentId,
+            HttpServletRequest httpRequest
+    ){
+        String ipAddress = getClientIp(httpRequest);
+
+        documentService.deleteDocument(documentId, ipAddress);
         return ResponseEntity.ok(
                 CommonResponse.success("문서가 삭제되었습니다.")
         );
     }
 
+
+    // 클라이언트IP 추출
+    private String getClientIp(HttpServletRequest request) {
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
+    }
 
 
 }

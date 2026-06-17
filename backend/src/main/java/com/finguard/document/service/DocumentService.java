@@ -1,5 +1,9 @@
 package com.finguard.document.service;
 
+import com.finguard.audit.domain.AuditAction;
+import com.finguard.audit.domain.AuditTargetType;
+import com.finguard.audit.repository.AuditLogRepository;
+import com.finguard.audit.service.AuditLogService;
 import com.finguard.document.domain.Document;
 import com.finguard.document.domain.DocumentStatus;
 import com.finguard.document.dto.request.DocumentCreateRequest;
@@ -31,12 +35,14 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
+    private final AuditLogRepository auditLogRepository;;
+    private final AuditLogService auditLogService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @Transactional
-    public DocumentCreateResponse createDocument(MultipartFile file, DocumentCreateRequest request) {
+    public DocumentCreateResponse createDocument(MultipartFile file, DocumentCreateRequest request,String ipAddress) {
         validateFile(file);
 
         User user = getCurrentUser();
@@ -58,6 +64,17 @@ public class DocumentService {
                 .build();
 
         Document savedDocument = documentRepository.saveAndFlush(document);
+
+        // 감사 로그 저장
+        auditLogService.saveLog(
+                user,
+                AuditAction.UPLOAD_DOCUMENT,
+                AuditTargetType.DOCUMENT,
+                savedDocument.getDocumentId(),
+                ipAddress,
+            "{\"title\":\"" + savedDocument.getTitle() + "\"}"
+        );
+
         return DocumentCreateResponse.from(savedDocument);
     }
 
@@ -76,10 +93,23 @@ public class DocumentService {
     }
 
     @Transactional
-    public void deleteDocument(Long documentId){
+    public void deleteDocument(Long documentId, String ipAddress){
         Document document = getDocumentById(documentId);
+        User user = getCurrentUser();
+
+        String title  = document.getTitle();
+
         deleteFile(document.getFilePath());
         documentRepository.delete(document);
+
+        auditLogService.saveLog(
+                user,
+                AuditAction.DELETE_DOCUMENT,
+                AuditTargetType.DOCUMENT,
+                documentId,
+                ipAddress,
+                "{\"title\":\"" + title + "\"}"
+        );
 
     }
 
