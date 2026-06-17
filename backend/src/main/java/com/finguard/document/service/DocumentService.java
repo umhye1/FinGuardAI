@@ -10,6 +10,7 @@ import com.finguard.document.dto.request.DocumentCreateRequest;
 import com.finguard.document.dto.response.DocumentDetailResponse;
 import com.finguard.document.dto.response.DocumentListResponse;
 import com.finguard.document.dto.response.DocumentCreateResponse;
+import com.finguard.document.repository.DocumentChunkRepository;
 import com.finguard.document.repository.DocumentRepository;
 import com.finguard.global.exception.BadRequestException;
 import com.finguard.global.exception.NotFoundException;
@@ -37,12 +38,20 @@ public class DocumentService {
     private final UserRepository userRepository;
     private final AuditLogRepository auditLogRepository;;
     private final AuditLogService auditLogService;
+    private final DocumentTextExtractor documentTextExtractor;
+    private final DocumentChunkService documentChunkService;
+    private final DocumentChunkRepository documentChunkRepository;
+
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
     @Transactional
-    public DocumentCreateResponse createDocument(MultipartFile file, DocumentCreateRequest request,String ipAddress) {
+    public DocumentCreateResponse createDocument(
+            MultipartFile file,
+            DocumentCreateRequest request,
+            String ipAddress
+    ) {
         validateFile(file);
 
         User user = getCurrentUser();
@@ -64,6 +73,22 @@ public class DocumentService {
                 .build();
 
         Document savedDocument = documentRepository.saveAndFlush(document);
+
+        // 문서 chunk 처리
+        try {
+            savedDocument.updateStatus(DocumentStatus.PROCESSING);
+
+            String extractedText = documentTextExtractor.extract(savedDocument.getFilePath());
+
+            int chunkCount = documentChunkService.createChunks(savedDocument, extractedText);
+
+            savedDocument.completeProcessing(chunkCount);
+            savedDocument.completeProcessing(chunkCount);
+
+        } catch (Exception e) {
+            savedDocument.failProcessing();
+            throw new IllegalStateException("문서 청크 처리 중 오류가 발생했습니다.", e);
+        }
 
         // 감사 로그 저장
         auditLogService.saveLog(
@@ -99,7 +124,10 @@ public class DocumentService {
 
         String title  = document.getTitle();
 
+        documentChunkRepository.deleteByDocument(document);
+
         deleteFile(document.getFilePath());
+
         documentRepository.delete(document);
 
         auditLogService.saveLog(
