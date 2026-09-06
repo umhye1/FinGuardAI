@@ -6,5 +6,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class LogoutRequest {
+    @jakarta.validation.constraints.NotBlank
     private String refreshToken;
 }

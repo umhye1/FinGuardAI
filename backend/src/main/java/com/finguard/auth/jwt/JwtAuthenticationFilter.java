@@ -21,6 +21,7 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final com.finguard.auth.service.TokenSessionStore sessions;
 
     @Override
     protected void doFilterInternal(
@@ -37,11 +38,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = authorizationHeader.substring(7);
 
-        if(!jwtTokenProvider.validateToken(accessToken)) {
+        if(!jwtTokenProvider.validateAccessToken(accessToken)) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        try {
+            if (!sessions.isActive(jwtTokenProvider.getSessionId(accessToken))) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+        } catch (org.springframework.dao.DataAccessException e) {
+            response.setStatus(503);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"statusCode\":503,\"message\":\"인증 저장소를 사용할 수 없습니다.\",\"data\":null}");
+            return;
+        }
         String email = jwtTokenProvider.getEmail(accessToken);
         User user = userRepository.findByEmail(email)
                 .orElse(null);
