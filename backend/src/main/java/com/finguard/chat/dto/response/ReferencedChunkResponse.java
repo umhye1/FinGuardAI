@@ -5,6 +5,8 @@ import lombok.Getter;
 
 @Getter
 @Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class ReferencedChunkResponse {
 
     private Long chunkId;
