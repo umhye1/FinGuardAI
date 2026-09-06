@@ -18,6 +18,9 @@ public class AnalysisDetailResponse {
     private int riskScore;
     private List<DetectedKeywordResponse> detectedKeywordRespons;
 
+    private com.finguard.ai.dto.ClassificationResult modelResult;
+    private String ruleVersion;
+    private String explanationSource;
     private String ruleReason;
     private String aiSummary;
     private String recommendedAction;
@@ -29,6 +32,9 @@ public class AnalysisDetailResponse {
     ){
         return AnalysisDetailResponse.builder()
                 .analysisId(analysisLog.getAnalysisId())
+                .modelResult(analysisLog.readModelResult())
+                .ruleVersion(analysisLog.getRuleVersion())
+                .explanationSource("RULE_TEMPLATE")
                 .inputText(analysisLog.getInputText())
                 .riskLevel(analysisLog.getRiskLevel())
                 .riskScore(analysisLog.getRiskScore())
