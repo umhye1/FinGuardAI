@@ -82,3 +82,13 @@ redis_data/
 
 # Test reports
 target/
+# Python AI service
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+ai/.artifacts/
+ai/data/private/
+ai/.coverage
