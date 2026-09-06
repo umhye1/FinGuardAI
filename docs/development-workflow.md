@@ -6,7 +6,7 @@
 - `ai/`: FastAPI, 분류·학습·평가·임베딩·RAG
 - `infra/`: 컨테이너 실행 구성
 - `contracts/`: Spring/AI 호출 계약
-- `frontend/`: 후속 프론트엔드 구현 시 추가
+- `frontend/`: React + TypeScript 사용자·관리자 화면
 
 `server`는 별도 영구 브랜치보다 `infra/` 디렉터리로 관리한다.
 
@@ -36,6 +36,7 @@ Git에서 위 구조는 디렉터리 트리가 아니라 분기·통합 흐름�
 docker compose --env-file infra/.env -f infra/compose.yml up --build -d
 ```
 
+- frontend: localhost:3000 (변경 가능)
 - backend: localhost:8080 (변경 가능)
 - postgres: localhost:55432 (기존 5432 충돌 회피)
 - AI와 Redis는 Compose 내부 네트워크에서만 접근
@@ -56,3 +57,7 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 ## 기존 환경 유지
 
 기존 DB에 적용할 때는 docs/backend/backend-upgrade.md의 baseline 절차를 먼저 확인한다. V6부터 PostgreSQL 서버의 pgvector 확장과 확장 생성 권한이 추가로 필요하다. 기존 로컬 application.properties와 사용자 DB는 이번 작업에서 변경하지 않았다.
+
+## 프론트엔드 브랜치
+
+AI PR이 main에 병합된 뒤 로컬 main/dev를 해당 커밋으로 fast-forward하고 `codex/frontend-workspace`를 분기했다. Git 브랜치는 목록에서 나란히 표시되며 계층 폴더가 아니다. dev를 원격에 먼저 push한 뒤 프론트 PR의 base로 선택한다. main에 직접 통합하는 경우에는 base를 main으로 선택해도 된다. 실행·인증 정책·테스트는 frontend/README.md를 참고한다.

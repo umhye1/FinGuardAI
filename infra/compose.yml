@@ -1,5 +1,11 @@
 name: finguard-dev
 services:
+  frontend:
+    build: ../frontend
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
   postgres:
     image: pgvector/pgvector:pg16
     environment:
