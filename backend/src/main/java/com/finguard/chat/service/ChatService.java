@@ -30,6 +30,8 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatSessionRepository chatSessionRepository;
     private final UserRepository userRepository;
+    private final com.finguard.ai.service.RagClient ragClient;
+    private final ChatAnswerWriter answerWriter;
 
 
     // 세션 생성
@@ -81,40 +83,17 @@ public class ChatService {
 
 
 
-    // 문서 기반 질문
-    @Transactional
+    // AI network calls are outside the database transaction. Ownership is checked again on save.
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     public ChatAnswerResponse askQuestion(Long sessionId, ChatQuestionRequest request) {
-        if(request.getQuestion() ==null || request.getQuestion().isBlank()) {
-            throw new BadRequestException("질문 내용을 입력해주세요");
+        if (request.getQuestion() == null || request.getQuestion().isBlank() || request.getQuestion().length() > 10000) {
+            throw new BadRequestException("질문은 1~10000자로 입력해주세요.");
         }
-
         User user = getCurrentUser();
-
-        ChatSession session = getSessionByIdAndUser(sessionId,user);
-
-        ChatMessage userMessage = ChatMessage.builder()
-                .session(session)
-                .sender(MessageSender.USER)
-                .message(request.getQuestion())
-                .referencedChunks(null)
-                .build();
-
-        ChatMessage savedUserMessage = chatMessageRepository.save(userMessage);
-        String dummyAnswer = "현재는 테스트 답변입니다. 추후 RAG 기반 답변으로 교체됩니다.";
-
-        ChatMessage aiMessage = ChatMessage.builder()
-                .session(session)
-                .sender(MessageSender.AI)
-                .message(dummyAnswer)
-                .referencedChunks(null)
-                .build();
-
-        ChatMessage savedAiMessage = chatMessageRepository.save(aiMessage);
-        return ChatAnswerResponse.of(savedUserMessage,savedAiMessage);
+        getSessionByIdAndUser(sessionId, user);
+        var result = ragClient.answer(request.getQuestion());
+        return answerWriter.save(user.getEmail(), sessionId, request.getQuestion(), result);
     }
-
-
-
 
     // 세션 삭제
     @Transactional

@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse<SignupResponse>> signup(@RequestBody SignupRequest request){
+    public ResponseEntity<CommonResponse<SignupResponse>> signup(@jakarta.validation.Valid @RequestBody SignupRequest request){
         SignupResponse response = authService.signup(request);
         return ResponseEntity.ok(
                 CommonResponse.success("회원가입에 성공했습니다.", response));
@@ -28,7 +28,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<CommonResponse<LoginResponse>> login(@RequestBody LoginRequest request){
+    public ResponseEntity<CommonResponse<LoginResponse>> login(@jakarta.validation.Valid @RequestBody LoginRequest request){
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(
                 CommonResponse.success("로그인에 성공했습니다.", response)
@@ -38,12 +38,18 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<CommonResponse<Void>> logout(
             @RequestHeader("Authorization") String authorizationHeader,
-            @RequestBody LogoutRequest request
+            @jakarta.validation.Valid @RequestBody LogoutRequest request
     ){
         authService.logout(authorizationHeader,request);
         return ResponseEntity.ok(
                 CommonResponse.success("로그아웃되었습니다.")
         );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<CommonResponse<LoginResponse>> refresh(
+            @jakarta.validation.Valid @RequestBody com.finguard.auth.dto.request.RefreshRequest request) {
+        return ResponseEntity.ok(CommonResponse.success("토큰을 재발급했습니다.", authService.refresh(request)));
     }
 
     @GetMapping("/me")

@@ -34,11 +34,13 @@ public class AnalysisService {
     private final AnalysisLogRepository analysisLogRepository; // 분석 결과 db 저장, 조회
     private final KeywordRepository keywordRepository; // 관리자가 등록한 위험 키워드를 db에서 가져올 떄 사용
     private final UserRepository userRepository; // 현재 로그인한 사용자 찾을 때 사용
+    private final com.finguard.ai.service.ClassificationClient classificationClient;
+    private final AnalysisLogWriter logWriter;
     private final ObjectMapper objectMapper; // Java 객체를 JSON 문자열로 바꾸거나, JSON 문자열을 Java 객체로 다시 바꿀 때 사용
 
 
     // 1. 문자 분석하기 - 사용자가 보낸 문자를 분석하고, 결과를 DB에 저장한 뒤 응답으로 반환
-    @Transactional
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     public AnalysisResponse analyze(AnalysisRequest request) {
         // 1. 입력 문자 검증
         validateText(request.getText()); // 빈 문자 검증. 빈 문자열을 보낼 경우 분석 x
@@ -70,6 +72,7 @@ public class AnalysisService {
         String aiSummary = createAiSummary(riskLevel);
         String recommendedAction = createRecommendedAction(riskLevel);
 
+        var modelResult = classificationClient.classify(request.getText());
         // 8. 탐지 키워드 목록을 JSON으로 변환
         String detectedKeywordsJson= convertDetectedKeywordsToJson(detectedKeywords);
 
@@ -82,18 +85,25 @@ public class AnalysisService {
                 .detectedKeywords(detectedKeywordsJson)
                 .ruleReason(ruleReason)
                 .aiSummary(aiSummary)
+                .modelResult(serializeModelResult(modelResult))
+                .ruleVersion("keyword-snapshot-v1")
                 .recommendedAction(recommendedAction)
                 .build();
-        AnalysisLog savedAnalysisLog = analysisLogRepository.saveAndFlush(analysisLog);
+        AnalysisLog savedAnalysisLog = logWriter.save(analysisLog);
 
         // 10. AnalysisResponse 반환
         return AnalysisResponse.of(savedAnalysisLog,detectedKeywords);
     }
 
 
+    private String serializeModelResult(com.finguard.ai.dto.ClassificationResult result) {
+        try { return objectMapper.writeValueAsString(result); }
+        catch (JsonProcessingException e) { throw new IllegalStateException(e); }
+    }
+
     // 문자열 검증
     private void validateText(String text) {
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.trim().isEmpty() || text.length() > 10000) {
             throw new BadRequestException("분석할 문자를 입력해주세요.");
         }
     }

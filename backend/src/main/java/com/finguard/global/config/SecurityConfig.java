@@ -33,12 +33,24 @@ public class SecurityConfig {
                                 "/actuator/health",
                                 "/api/auth/signup",
                                 "/api/auth/login",
+                                "/api/auth/refresh",
                                 "/error"
                         ).permitAll()
-//                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 
+                .exceptionHandling(errors -> errors
+                        .authenticationEntryPoint((request, response, exception) -> {
+                            response.setStatus(401);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"statusCode\":401,\"message\":\"인증이 필요합니다.\",\"data\":null}");
+                        })
+                        .accessDeniedHandler((request, response, exception) -> {
+                            response.setStatus(403);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"statusCode\":403,\"message\":\"접근 권한이 없습니다.\",\"data\":null}");
+                        }))
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class

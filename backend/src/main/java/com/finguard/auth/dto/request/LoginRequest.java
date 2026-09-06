@@ -4,12 +4,16 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
 public class LoginRequest {
 
+    @jakarta.validation.constraints.NotBlank
+    @Email
     private String email;
+    @jakarta.validation.constraints.NotBlank
+    @Size(max = 72)
     private String password;
 }

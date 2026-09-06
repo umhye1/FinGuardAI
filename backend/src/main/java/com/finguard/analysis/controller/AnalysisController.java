@@ -21,7 +21,7 @@ public class AnalysisController {
 
     @PostMapping
     public ResponseEntity<CommonResponse<AnalysisResponse>> analyze(
-            @RequestBody AnalysisRequest request
+            @jakarta.validation.Valid @RequestBody AnalysisRequest request
     ){
         AnalysisResponse response = analysisService.analyze(request);
 

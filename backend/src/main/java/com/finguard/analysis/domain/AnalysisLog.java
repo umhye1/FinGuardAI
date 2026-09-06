@@ -56,6 +56,19 @@ public class AnalysisLog {
     @Column(name = "recommended_action", columnDefinition = "TEXT")
     private String recommendedAction;
 
+    @Column(name = "model_result", columnDefinition = "TEXT")
+    private String modelResult;
+
+    @Column(name = "rule_version", length = 100)
+    private String ruleVersion;
+
+    public com.finguard.ai.dto.ClassificationResult readModelResult() {
+        if (modelResult == null) return com.finguard.ai.dto.ClassificationResult.unavailable(
+                com.finguard.ai.dto.ClassificationResult.Status.NOT_REQUESTED, null);
+        try { return new com.fasterxml.jackson.databind.ObjectMapper().readValue(modelResult, com.finguard.ai.dto.ClassificationResult.class); }
+        catch (com.fasterxml.jackson.core.JsonProcessingException e) { throw new IllegalStateException("Stored model result is invalid", e); }
+    }
+
     @CreationTimestamp
     @Column(name = "created_at",  nullable = false, updatable = false)
     private LocalDateTime createdAt;

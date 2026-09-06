@@ -25,7 +25,7 @@ public class DocumentTextExtractor {
             throw new IllegalArgumentException("지원하지 않는 파일 형식입니다.");
 
         }catch(Exception e){
-            throw new IllegalArgumentException("문서 텍스트 추출 중 오류가 발생했습니다.");
+            throw new IllegalArgumentException("문서 텍스트 추출 중 오류가 발생했습니다.", e);
         }
     }
 

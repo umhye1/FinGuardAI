@@ -26,6 +26,7 @@ public class AuthService {
     private final UserRepository userRepository; // DB 접근 객체를 AuthService에서 사용하려고 주입받는 것
     private final PasswordEncoder passwordEncoder; // 비밀번호 암호화 위해 사용 - 나중에 로그인할 때는 입력한 비밀번호와 암호화된 비밀번호를 비교
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenSessionStore sessions;
 
     @Transactional // 회원가입은 조회만 하면 안됨 - transactional 다시 붙임
     public SignupResponse signup(SignupRequest request) {
@@ -53,30 +54,39 @@ public class AuthService {
             throw new LoginFailedException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        String accessToken = jwtTokenProvider.createAccessToken(
-                user.getUserId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        String refreshToken = jwtTokenProvider.createRefreshToken(
-                user.getUserId(),
-                user.getEmail()
-        );
-
+        String sessionId = java.util.UUID.randomUUID().toString();
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getEmail(), user.getRole(), sessionId);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getEmail(), sessionId);
+        sessions.create(sessionId, refreshToken, jwtTokenProvider.getRemainingExpiration(refreshToken));
         return LoginResponse.of(user, accessToken, refreshToken);
     }
 
-    @Transactional
+    public LoginResponse refresh(com.finguard.auth.dto.request.RefreshRequest request) {
+        String oldToken = request.refreshToken();
+        if (!jwtTokenProvider.validateRefreshToken(oldToken)) {
+            throw new UnauthorizedException("유효하지 않은 리프레시 토큰입니다.");
+        }
+        User user = userRepository.findById(jwtTokenProvider.getUserId(oldToken))
+                .orElseThrow(() -> new UnauthorizedException("사용자를 찾을 수 없습니다."));
+        String sessionId = jwtTokenProvider.getSessionId(oldToken);
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getEmail(), sessionId);
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getEmail(), user.getRole(), sessionId);
+        if (!sessions.rotate(sessionId, oldToken, refreshToken, jwtTokenProvider.getRemainingExpiration(refreshToken))) {
+            throw new UnauthorizedException("이미 사용되었거나 폐기된 리프레시 토큰입니다.");
+        }
+        return LoginResponse.of(user, accessToken, refreshToken);
+    }
+
     public void logout(String authorizationHeader, LogoutRequest request) {
         String accessToken = extractAccessToken(authorizationHeader);
-        if (!jwtTokenProvider.validateToken(accessToken)) {
+        String refreshToken = request.getRefreshToken();
+        if (!jwtTokenProvider.validateAccessToken(accessToken)
+                || !jwtTokenProvider.validateRefreshToken(refreshToken)
+                || !jwtTokenProvider.getSessionId(accessToken).equals(jwtTokenProvider.getSessionId(refreshToken))
+                || !jwtTokenProvider.getUserId(accessToken).equals(jwtTokenProvider.getUserId(refreshToken))) {
             throw new UnauthorizedException("로그아웃에 실패했습니다.");
         }
-
-        if (request.getRefreshToken() == null || !jwtTokenProvider.validateToken(request.getRefreshToken())) {
-            throw new UnauthorizedException("로그아웃에 실패했습니다.");
-        }
+        sessions.revoke(jwtTokenProvider.getSessionId(accessToken));
     }
 
     private String extractAccessToken(String authorizationHeader) {
@@ -90,7 +100,7 @@ public class AuthService {
     public MyInfoResponse getMyInfo(String authorizationHeader) {
         String accessToken = extractAccessToken(authorizationHeader);
 
-        if(!jwtTokenProvider.validateToken(accessToken)) {
+        if(!jwtTokenProvider.validateAccessToken(accessToken)) {
             throw new UnauthorizedException("내 정보 조회에 실패했습니다.");
         }
 

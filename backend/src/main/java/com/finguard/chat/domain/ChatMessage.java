@@ -42,6 +42,14 @@ public class ChatMessage {
     @Column(name ="referenced_chunks",columnDefinition = "TEXT")
     private String referencedChunks;
 
+    @Column(length = 30) private String generationStatus;
+    @Column(length = 100) private String modelVersion;
+    @Column(length = 100) private String promptVersion;
+
+    public void setGenerationMetadata(String status, String model, String prompt) {
+        generationStatus = status; modelVersion = model; promptVersion = prompt;
+    }
+
     @CreationTimestamp
     @Column(name="created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

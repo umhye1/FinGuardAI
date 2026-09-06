@@ -8,5 +8,9 @@ import java.util.List;
 
 public interface DocumentRepository extends JpaRepository<Document, Long> {
 
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select d from Document d where d.documentId = :id")
+    java.util.Optional<Document> findLocked(@org.springframework.data.repository.query.Param("id") Long id);
+
     List<Document> findAllByOrderByCreatedAtDesc();
 }

@@ -3,7 +3,9 @@ package com.finguard.document.service;
 
 import com.finguard.document.domain.Document;
 import com.finguard.document.domain.DocumentChunk;
+import com.finguard.document.dto.response.DocumentChunkSearchResponse;
 import com.finguard.document.repository.DocumentChunkRepository;
+import com.finguard.global.exception.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +59,17 @@ public class DocumentChunkService {
         return text
                 .replaceAll("\\s+"," ")
                 .trim();
+    }
+
+    public List<DocumentChunkSearchResponse> searchChunks(String keyword) {
+        if(keyword == null || keyword.isBlank()){
+            throw new BadRequestException("검색 키워드를 입력해주세요.");
+        }
+
+        return documentChunkRepository.searchByKeyword(keyword.trim())
+                .stream()
+                .map(DocumentChunkSearchResponse::from)
+                .toList();
     }
 
 

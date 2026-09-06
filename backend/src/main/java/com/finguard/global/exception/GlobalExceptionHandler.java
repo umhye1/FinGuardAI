@@ -10,6 +10,24 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler({org.springframework.web.bind.MethodArgumentNotValidException.class,
+            org.springframework.http.converter.HttpMessageNotReadableException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class,
+            org.springframework.web.bind.MissingServletRequestParameterException.class})
+    public ResponseEntity<CommonResponse<Void>> handleInvalidRequest(Exception e) {
+        return ResponseEntity.badRequest().body(CommonResponse.fail(400, "요청 형식 또는 입력값이 올바르지 않습니다."));
+    }
+
+    @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
+    public ResponseEntity<CommonResponse<Void>> handleConcurrentReview(Exception e) {
+        return ResponseEntity.status(409).body(CommonResponse.fail(409, "다른 요청으로 변경되었습니다. 다시 조회해주세요."));
+    }
+
+    @ExceptionHandler(org.springframework.dao.DataAccessException.class)
+    public ResponseEntity<CommonResponse<Void>> handleStorageUnavailable(Exception e) {
+        return ResponseEntity.status(503).body(CommonResponse.fail(503, "저장소를 사용할 수 없습니다."));
+    }
+
     @ExceptionHandler(LoginFailedException.class)
     public ResponseEntity<CommonResponse<Void>> handleLoginFailedException(LoginFailedException e) {
         return ResponseEntity

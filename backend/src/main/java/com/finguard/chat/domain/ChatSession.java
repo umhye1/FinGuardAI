@@ -56,6 +56,8 @@ public class ChatSession {
         this.deleted = false;
     }
 
+    public void touch() { updatedAt = LocalDateTime.now(); }
+
     // soft delete
     public void delete(){
         this.deleted = true;

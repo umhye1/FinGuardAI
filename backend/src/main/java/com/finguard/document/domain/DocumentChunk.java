@@ -14,7 +14,7 @@ public class DocumentChunk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chunk_id")
-    private Long chunckId;
+    private Long chunkId;
 
     // 문서 하나에 여러 청크
     @ManyToOne(fetch = FetchType.LAZY)
