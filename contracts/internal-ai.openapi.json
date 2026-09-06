@@ -1,0 +1,185 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FinGuardAI internal AI contract",
+    "version": "1.0.0",
+    "description": "Backend client contract. AI service implementation is separate. Use TLS/private network and verify service credentials."
+  },
+  "security": [
+    {
+      "ServiceToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ServiceToken": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Service-Token"
+      }
+    }
+  },
+  "paths": {
+    "/internal/v1/classifications": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 10000
+                  }
+                },
+                "required": [
+                  "text"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Unwrapped AI result (not CommonResponse)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "COMPLETED"
+                      ]
+                    },
+                    "label": {
+                      "type": "string",
+                      "enum": [
+                        "PHISHING",
+                        "NORMAL"
+                      ],
+                      "nullable": true
+                    },
+                    "decision": {
+                      "type": "string",
+                      "enum": [
+                        "FLAG",
+                        "PASS",
+                        "ABSTAIN"
+                      ]
+                    },
+                    "modelVersion": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "errorCode": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "decision",
+                    "modelVersion"
+                  ],
+                  "description": "FLAG requires PHISHING; PASS requires NORMAL; ABSTAIN permits null label. errorCode must be absent or null. The backend independently preserves rule scores."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid service credential"
+          },
+          "503": {
+            "description": "Model unavailable"
+          }
+        }
+      }
+    },
+    "/internal/v1/rag/answers": {
+      "post": {
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "question": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 10000
+                  }
+                },
+                "required": [
+                  "question"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Unwrapped AI result (not CommonResponse)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ANSWERED",
+                        "INSUFFICIENT_EVIDENCE"
+                      ]
+                    },
+                    "answer": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 10000
+                    },
+                    "chunkIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "format": "int64",
+                        "minimum": 1
+                      },
+                      "minItems": 1,
+                      "maxItems": 10
+                    },
+                    "modelVersion": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    },
+                    "promptVersion": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 100
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ],
+                  "description": "ANSWERED requires answer, chunkIds, modelVersion and promptVersion. INSUFFICIENT_EVIDENCE needs only status. Chunk IDs must be IDs from the shared corpus database, not model-invented IDs."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid service credential"
+          },
+          "503": {
+            "description": "Model unavailable"
+          }
+        }
+      }
+    }
+  }
+}
