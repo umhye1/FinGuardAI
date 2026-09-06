@@ -17,8 +17,10 @@ public class RagClient {
     public RagClient(@Value("${ai.enabled:false}") boolean enabled,
             @Value("${ai.server-url:http://localhost:8000}") String url,
             @Value("${ai.service-token:}") String token,
-            @Value("${ai.timeout-ms:5000}") long timeoutMs, PrivacyMasker masker) {
+            @Value("${ai.rag-timeout-ms:15000}") long timeoutMs, PrivacyMasker masker) {
         this.enabled = enabled; this.masker = masker;
+        if (enabled && token.isBlank()) throw new IllegalArgumentException("ai.service-token is required when AI is enabled");
+        if (timeoutMs < 1 || timeoutMs > 60000) throw new IllegalArgumentException("ai.rag-timeout-ms must be 1..60000");
         var factory = new JdkClientHttpRequestFactory(HttpClient.newBuilder().connectTimeout(Duration.ofMillis(timeoutMs)).build());
         factory.setReadTimeout(Duration.ofMillis(timeoutMs));
         client = RestClient.builder().baseUrl(url).requestFactory(factory).defaultHeader("X-Service-Token", token).build();
