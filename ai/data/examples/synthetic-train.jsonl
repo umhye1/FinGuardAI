@@ -1,0 +1,20 @@
+{"id": "train-0", "group": "train-template-0", "text": "수사기관입니다 사건 연루 확인을 위해 지정 계좌로 보증금을 보내세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-1", "group": "train-template-1", "text": "검찰 담당자입니다 자금 보호를 위해 안전계좌로 전액 이체하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-2", "group": "train-template-2", "text": "저금리 대환 승인 기존 대출 상환금을 개인 계좌로 먼저 송금하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-3", "group": "train-template-3", "text": "정부 지원 대출 대상입니다 신용등급 조정 수수료를 입금하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-4", "group": "train-template-4", "text": "택배 주소 오류 배송 조회 링크에 접속해서 카드 정보를 입력하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-5", "group": "train-template-5", "text": "해외 결제 승인 취소하려면 링크에서 계좌 비밀번호를 입력하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-6", "group": "train-template-6", "text": "엄마 휴대폰 고장났어 상품권 구매해서 번호 사진 보내줘", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-7", "group": "train-template-7", "text": "가족 긴급 사고 처리 비용을 지금 이 계좌로 보내주세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-8", "group": "train-template-8", "text": "금융 보안 업데이트 필요 원격제어 앱을 설치하고 인증번호 알려주세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-9", "group": "train-template-9", "text": "휴면 자산 환급 신청 아래 주소에서 주민번호와 비밀번호를 제출하세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-10", "group": "train-template-10", "text": "보이스피싱 예방 안내 검찰 사칭 문자에 돈을 보내지 마세요", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-11", "group": "train-template-11", "text": "은행은 문자로 계좌 비밀번호와 인증번호를 요구하지 않습니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-12", "group": "train-template-12", "text": "택배가 문 앞에 배송 완료되었습니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-13", "group": "train-template-13", "text": "내일 오후 세 시 병원 예약 안내입니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-14", "group": "train-template-14", "text": "이번 달 카드 명세서는 공식 앱에서 확인할 수 있습니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-15", "group": "train-template-15", "text": "도서관 대출 도서의 반납일은 다음 주입니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-16", "group": "train-template-16", "text": "엄마 오늘 저녁에 집에 갈게 밥 같이 먹자", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-17", "group": "train-template-17", "text": "고객님 입금 내역은 직접 실행한 은행 앱에서 확인해주세요", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-18", "group": "train-template-18", "text": "악성 앱 설치 유도에 주의하고 모르는 링크를 누르지 마세요", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "train-19", "group": "train-template-19", "text": "신청하신 상담 예약이 접수되었습니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}

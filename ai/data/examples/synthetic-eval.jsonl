@@ -1,0 +1,8 @@
+{"id": "eval-0", "group": "eval-template-0", "text": "수사 협조를 위해 보관 계좌에 잔액을 모두 옮겨주시기 바랍니다", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-1", "group": "eval-template-1", "text": "대출 실행 전에 보증료를 상담원 개인 계좌로 납부해주세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-2", "group": "eval-template-2", "text": "아빠 내 폰 수리중이야 문화상품권 사서 코드만 보내줘", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-3", "group": "eval-template-3", "text": "미납 요금 확인 아래 앱을 설치하고 금융 인증번호를 전달해주세요", "label": "PHISHING", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-4", "group": "eval-template-4", "text": "기관을 사칭하며 안전계좌로 송금을 요구하면 사기를 의심하세요", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-5", "group": "eval-template-5", "text": "주문하신 상품이 출고되어 내일 도착 예정입니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-6", "group": "eval-template-6", "text": "오늘 회의는 두 시에 시작합니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}
+{"id": "eval-7", "group": "eval-template-7", "text": "정기 점검으로 새벽에는 도서 검색 서비스가 중단됩니다", "label": "NORMAL", "source": "repository-authored smoke fixture", "sourceType": "synthetic"}

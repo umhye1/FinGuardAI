@@ -35,7 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(properties = {"spring.config.location=classpath:application-test.properties", "jobs.worker.enabled=false"})
 @AutoConfigureMockMvc
 class FinguardApiApplicationTests {
-    @Container static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+    @Container static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"));
     @Container static GenericContainer<?> redis = new GenericContainer<>(DockerImageName.parse("redis:7-alpine")).withExposedPorts(6379);
     static Path uploads;
     static { try { uploads = Files.createTempDirectory("finguard-test-uploads-"); } catch(Exception e) { throw new RuntimeException(e); } }
