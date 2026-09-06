@@ -16,7 +16,7 @@ public class DocumentListResponse {
     private String title;
     private String source;
     private DocumentStatus status;
-    private int chunckCount;
+    private int chunkCount;
     private Long uploadedBy;
     private LocalDateTime createdAt;
 
@@ -26,7 +26,7 @@ public class DocumentListResponse {
                 .title(document.getTitle())
                 .source(document.getSource())
                 .status(document.getStatus())
-                .chunckCount(document.getChunkCount())
+                .chunkCount(document.getChunkCount())
                 .uploadedBy(
                         document.getUploadedBy() != null
                                 ? document.getUploadedBy().getUserId()

@@ -1,9 +1,11 @@
 package com.finguard.document.controller;
 
 import com.finguard.document.dto.request.DocumentCreateRequest;
+import com.finguard.document.dto.response.DocumentChunkSearchResponse;
 import com.finguard.document.dto.response.DocumentCreateResponse;
 import com.finguard.document.dto.response.DocumentDetailResponse;
 import com.finguard.document.dto.response.DocumentListResponse;
+import com.finguard.document.service.DocumentChunkService;
 import com.finguard.document.service.DocumentService;
 import com.finguard.global.response.CommonResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +23,7 @@ import java.util.List;
 public class DocumentController {
 
     private final DocumentService documentService;
+    private final DocumentChunkService documentChunkService;
 
     // 1. 문서 업로드
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -37,8 +40,8 @@ public class DocumentController {
 
         DocumentCreateResponse response = documentService.createDocument(file, request, ipAddress);
 
-        return ResponseEntity.status(201)
-                .body(CommonResponse.success(201,"문서가 업로드되었습니다.", response));
+        return ResponseEntity.status(202)
+                .body(CommonResponse.success(202,"문서가 업로드되었습니다.", response));
     }
 
 
@@ -86,6 +89,30 @@ public class DocumentController {
         }
         return request.getRemoteAddr();
     }
+
+    @PostMapping("/{documentId}/processing-jobs")
+    public ResponseEntity<CommonResponse<java.util.Map<String, java.util.UUID>>> retry(@PathVariable Long documentId) {
+        return ResponseEntity.accepted().body(CommonResponse.success(202, "문서 처리를 접수했습니다.",
+                java.util.Map.of("jobId", documentService.retry(documentId))));
+    }
+
+    // 5. 검색
+    @GetMapping("/chunks/search")
+    public ResponseEntity<CommonResponse<List<DocumentChunkSearchResponse>>> searchChunks(@RequestParam String keyword){
+        List<DocumentChunkSearchResponse> response = documentChunkService.searchChunks(keyword);
+
+
+
+        return ResponseEntity.ok(
+                CommonResponse.success(
+                        200,
+                        "문서 청크 검색에 성공했습니다",
+                        response
+                )
+        );
+    }
+
+
 
 
 }

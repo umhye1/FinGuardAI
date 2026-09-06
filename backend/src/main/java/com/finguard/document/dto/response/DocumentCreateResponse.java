@@ -19,10 +19,14 @@ public class DocumentCreateResponse {
     private DocumentStatus documentStatus;
     private Long uploadedBy;
     private LocalDateTime createdAt;
+    private int chunkCount;
+    private java.util.UUID jobId;
 
-    public static DocumentCreateResponse from(Document document) {
+    public static DocumentCreateResponse from(Document document, java.util.UUID jobId) {
         return DocumentCreateResponse.builder()
                 .documentId(document.getDocumentId())
+                .jobId(jobId)
+                .chunkCount(document.getChunkCount())
                 .title(document.getTitle())
                 .source(document.getSource())
                 .sourceUrl(document.getSourceUrl())

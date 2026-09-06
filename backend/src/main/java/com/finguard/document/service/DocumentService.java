@@ -36,14 +36,14 @@ public class DocumentService {
 
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-    private final AuditLogRepository auditLogRepository;;
+    private final com.finguard.job.service.DocumentJobService jobs;
+    private final com.finguard.job.repository.ProcessingJobRepository jobRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final AuditLogService auditLogService;
-    private final DocumentTextExtractor documentTextExtractor;
-    private final DocumentChunkService documentChunkService;
     private final DocumentChunkRepository documentChunkRepository;
 
 
-    @Value("${file.upload-dir}")
+    @Value("${file.upload-dir:./uploads}")
     private String uploadDir;
 
     @Transactional
@@ -53,12 +53,26 @@ public class DocumentService {
             String ipAddress
     ) {
         validateFile(file);
+        if (request.getTitle() == null || request.getTitle().isBlank() || request.getTitle().length() > 255
+                || request.getSource() == null || request.getSource().isBlank() || request.getSource().length() > 100) {
+            throw new BadRequestException("문서 제목과 출처를 올바르게 입력해주세요.");
+        }
 
         User user = getCurrentUser();
 
         String originalFileName = file.getOriginalFilename();
         String storedFileName = createdStoredFileName(originalFileName);
         String filePath = saveFile(file,storedFileName);
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override public void afterCompletion(int status) {
+                        if (status != STATUS_COMMITTED) {
+                            try { deleteFile(filePath); }
+                            catch (Exception e) { org.slf4j.LoggerFactory.getLogger(DocumentService.class)
+                                    .warn("Rolled-back upload requires file cleanup"); }
+                        }
+                    }
+                });
 
         Document document = Document.builder()
                 .title(request.getTitle())
@@ -74,21 +88,7 @@ public class DocumentService {
 
         Document savedDocument = documentRepository.saveAndFlush(document);
 
-        // 문서 chunk 처리
-        try {
-            savedDocument.updateStatus(DocumentStatus.PROCESSING);
-
-            String extractedText = documentTextExtractor.extract(savedDocument.getFilePath());
-
-            int chunkCount = documentChunkService.createChunks(savedDocument, extractedText);
-
-            savedDocument.completeProcessing(chunkCount);
-            savedDocument.completeProcessing(chunkCount);
-
-        } catch (Exception e) {
-            savedDocument.failProcessing();
-            throw new IllegalStateException("문서 청크 처리 중 오류가 발생했습니다.", e);
-        }
+        UUID jobId = jobs.enqueue(savedDocument.getDocumentId(), user.getUserId());
 
         // 감사 로그 저장
         auditLogService.saveLog(
@@ -97,10 +97,10 @@ public class DocumentService {
                 AuditTargetType.DOCUMENT,
                 savedDocument.getDocumentId(),
                 ipAddress,
-            "{\"title\":\"" + savedDocument.getTitle() + "\"}"
+            auditDetail(savedDocument.getTitle())
         );
 
-        return DocumentCreateResponse.from(savedDocument);
+        return DocumentCreateResponse.from(savedDocument, jobId);
     }
 
 
@@ -119,14 +119,28 @@ public class DocumentService {
 
     @Transactional
     public void deleteDocument(Long documentId, String ipAddress){
-        Document document = getDocumentById(documentId);
+        Document document = documentRepository.findLocked(documentId)
+                .orElseThrow(() -> new NotFoundException("문서를 찾을 수 없습니다."));
+        if (jobRepository.existsByDocumentIdAndStatusIn(documentId, List.of(
+                com.finguard.job.domain.ProcessingJob.Status.PENDING, com.finguard.job.domain.ProcessingJob.Status.RUNNING))) {
+            throw new com.finguard.global.exception.ConflictException("처리 중인 문서는 삭제할 수 없습니다.");
+        }
         User user = getCurrentUser();
 
         String title  = document.getTitle();
 
         documentChunkRepository.deleteByDocument(document);
 
-        deleteFile(document.getFilePath());
+        String pathToDelete = document.getFilePath();
+        org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization(
+                new org.springframework.transaction.support.TransactionSynchronization() {
+                    @Override public void afterCommit() {
+                        try { deleteFile(pathToDelete); }
+                        catch (Exception e) { org.slf4j.LoggerFactory.getLogger(DocumentService.class)
+                                .warn("Orphan document file requires cleanup: documentId={}", documentId); }
+                    }
+                });
+        jobRepository.deleteByDocumentId(documentId);
 
         documentRepository.delete(document);
 
@@ -136,7 +150,7 @@ public class DocumentService {
                 AuditTargetType.DOCUMENT,
                 documentId,
                 ipAddress,
-                "{\"title\":\"" + title + "\"}"
+                auditDetail(title)
         );
 
     }
@@ -153,9 +167,21 @@ public class DocumentService {
         }
 
 
-//        if (!originalFileName.toLowerCase().endsWith(".pdf")) {
-//            throw new BadRequestException("PDF 파일만 업로드할 수 있습니다.");
-//        }
+        String lower = originalFileName.toLowerCase(java.util.Locale.ROOT);
+        if ((!lower.endsWith(".pdf") && !lower.endsWith(".txt")) || originalFileName.length() > 255) {
+            throw new BadRequestException("PDF 또는 TXT 파일만 업로드할 수 있습니다.");
+        }
+        if (file.getSize() > 10 * 1024 * 1024) throw new BadRequestException("파일은 10MB 이하여야 합니다.");
+    }
+
+    @Transactional
+    public UUID retry(Long documentId) {
+        return jobs.enqueue(documentId, getCurrentUser().getUserId());
+    }
+
+    private String auditDetail(String title) {
+        try { return objectMapper.writeValueAsString(java.util.Map.of("title", title)); }
+        catch (com.fasterxml.jackson.core.JsonProcessingException e) { throw new IllegalStateException(e); }
     }
 
     private String createdStoredFileName(String originalFileName) {
