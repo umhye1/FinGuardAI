@@ -410,7 +410,11 @@ function Conversation({
                 m.generationStatus !== "ANSWERED" && (
                   <span className="badge amber">
                     {m.generationStatus === "INSUFFICIENT_EVIDENCE"
-                      ? "근거 부족"
+                      ? m.reasonCode === "CONFLICTING_EVIDENCE"
+                        ? "근거 충돌 · 답변 보류"
+                        : m.reasonCode === "NEEDS_CLARIFICATION"
+                          ? "추가 정보 필요"
+                          : "근거 부족"
                       : "답변 생성 미완료"}
                   </span>
                 )}
