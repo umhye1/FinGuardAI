@@ -45,3 +45,10 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+// Explicit operator command; never auto-baseline during application startup.
+tasks.register('migrateDatabase', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'com.finguard.tools.DatabaseMigrationTool'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}

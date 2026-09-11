@@ -1,0 +1,19 @@
+{
+  "status": "FAILED",
+  "missingSettings": [],
+  "providerCalls": 1,
+  "provider": "openai",
+  "caseCount": 2,
+  "corpusRecords": 5,
+  "manifestSha256": "54290d2902adf6ba6db0a78510ac6ee4345539872f50bef5f79182c3df3d0fcd",
+  "generationModel": "gpt-4.1-mini",
+  "embeddingModel": "text-embedding-3-small",
+  "semanticReviewStatus": "NOT_EVALUATED",
+  "createdAt": "2026-09-11T08:33:27.586094+00:00",
+  "errorCode": "EVALUATION_SETUP_FAILED",
+  "diagnostic": {
+    "httpStatus": 401,
+    "stage": "first_embedding",
+    "generatedAnswers": 0
+  }
+}

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, SecretStr, model_validator
+from pydantic import AliasChoices, Field, SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,9 +14,13 @@ class Settings(BaseSettings):
     database_name: str = "finguard"
     database_user: str = "finguard"
     database_password: SecretStr | None = None
-    classifier_mode: Literal["local", "gemini"] = "local"
+    classifier_mode: Literal["local", "gemini", "openai"] = "local"
     classifier_path: Path = Path(".artifacts/classifier.json")
     allow_demo_model: bool = False
+    provider: Literal["gemini", "openai"] = "gemini"
+    openai_api_key: SecretStr | None = Field(
+        default=None, validation_alias=AliasChoices("AI_OPENAI_API_KEY", "OPENAI_API_KEY", "openai_api_key")
+    )
     gemini_api_key: SecretStr | None = None
     generation_model: str = Field(default="", max_length=70, pattern=r"^[a-zA-Z0-9._-]*$")
     embedding_model: str = Field(
@@ -47,6 +51,13 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def validate_generation(self):
-        if self.classifier_mode == "gemini" and not self.generation_model:
-            raise ValueError("AI_GENERATION_MODEL is required for Gemini classification")
+        if self.provider == "openai":
+            if "generation_model" not in self.model_fields_set:
+                self.generation_model = "gpt-4.1-mini"
+            if "embedding_model" not in self.model_fields_set:
+                self.embedding_model = "text-embedding-3-small"
+        if self.classifier_mode != "local" and self.classifier_mode != self.provider:
+            raise ValueError("AI_CLASSIFIER_MODE must match AI_PROVIDER or be local")
+        if self.classifier_mode != "local" and not self.generation_model:
+            raise ValueError("AI_GENERATION_MODEL is required for API classification")
         return self

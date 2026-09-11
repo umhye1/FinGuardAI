@@ -13,7 +13,7 @@ from psycopg_pool import PoolTimeout
 from finguard_ai.classification import LocalClassifier, MissingClassifier
 from finguard_ai.config import Settings
 from finguard_ai.errors import ServiceUnavailable
-from finguard_ai.provider import GeminiProvider
+from finguard_ai.provider import create_provider
 from finguard_ai.rag import RagService
 from finguard_ai.repository import CorpusRepository, make_pool
 from finguard_ai.schemas import ClassificationRequest, ClassificationResult, QuestionRequest, RagResult
@@ -72,13 +72,13 @@ def create_app(settings: Settings | None = None, injected: Services | None = Non
             if injected:
                 app.state.services = injected
             else:
-                provider = GeminiProvider(config)
+                provider = create_provider(config)
                 repository = None
                 if config.connection_info:
                     pool = make_pool(config.connection_info, config.pool_max_size)
                     pool.open()
                     repository = CorpusRepository(pool)
-                if config.classifier_mode == "gemini":
+                if config.classifier_mode != "local":
                     classifier, ready = provider, provider.configured
                 else:
                     try:
