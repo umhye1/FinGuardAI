@@ -1,0 +1,151 @@
+[
+  {
+    "title": "보이스피싱 계좌 송금 피해 대응",
+    "file": "joint-transfer-2025.txt",
+    "metadata": {
+      "corpus_id": "joint-transfer-2025",
+      "kind": "OFFICIAL_GUIDANCE",
+      "publisher": "금융위원회·금융감독원·KISA 등 관계기관 합동",
+      "source_url": "https://www.fsc.go.kr/no010101/83889",
+      "published_at": "2025-01-20",
+      "collected_at": "2026-09-11",
+      "reviewed_on": "2026-09-11",
+      "review_due": "2026-12-10",
+      "applicability": "KR_CONSUMER",
+      "version": "2025-01-20-summary-v1",
+      "family": "transfer-response",
+      "topics": [
+        "transfer"
+      ],
+      "claims": [
+        {
+          "topic": "transfer",
+          "key": "report_channel",
+          "value": "112"
+        },
+        {
+          "topic": "transfer",
+          "key": "payment_stop",
+          "value": "request_bank_or_112"
+        }
+      ],
+      "content_sha256": "c1bd46ec85614c62382563d51375fd191e5f19e115031e95fe25d3a8674dd4cb",
+      "representation": "SOURCE_SUMMARY"
+    }
+  },
+  {
+    "title": "스미싱 문자 확인과 악성앱 대응",
+    "file": "kisa-smishing-2025.txt",
+    "metadata": {
+      "corpus_id": "kisa-smishing-2025",
+      "kind": "OFFICIAL_GUIDANCE",
+      "publisher": "한국인터넷진흥원",
+      "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+      "published_at": "2025-04-01",
+      "collected_at": "2026-09-11",
+      "reviewed_on": "2026-09-11",
+      "review_due": "2026-12-10",
+      "applicability": "KR_CONSUMER",
+      "version": "2025-04-01-summary-v1",
+      "family": "smishing-response",
+      "topics": [
+        "smishing"
+      ],
+      "claims": [
+        {
+          "topic": "smishing",
+          "key": "consultation",
+          "value": "118"
+        },
+        {
+          "topic": "smishing",
+          "key": "unknown_link",
+          "value": "do_not_click"
+        }
+      ],
+      "content_sha256": "2899ac15d70166eca30262bca6c3b519b524b6055468c3a07f37e319ec98db1b",
+      "representation": "SOURCE_SUMMARY"
+    }
+  },
+  {
+    "title": "스미싱 관련 휴대폰 소액결제 피해 처리",
+    "file": "kisa-mobile-payment-2025.txt",
+    "metadata": {
+      "corpus_id": "kisa-mobile-payment-2025",
+      "kind": "OFFICIAL_GUIDANCE",
+      "publisher": "한국인터넷진흥원",
+      "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+      "published_at": "2025-04-01",
+      "collected_at": "2026-09-11",
+      "reviewed_on": "2026-09-11",
+      "review_due": "2026-12-10",
+      "applicability": "KR_CONSUMER",
+      "version": "2025-04-01-summary-v1",
+      "family": "mobile-payment-response",
+      "topics": [
+        "mobile_payment"
+      ],
+      "claims": [
+        {
+          "topic": "mobile_payment",
+          "key": "remedy",
+          "value": "carrier_police_documents"
+        }
+      ],
+      "content_sha256": "9dcae2086e65f72ac446b1d7513ce32ea9e5124fa29fe461b2e9fa520052751c",
+      "representation": "SOURCE_SUMMARY"
+    }
+  },
+  {
+    "title": "보이스피싱 통합신고·대응센터 안내",
+    "file": "fsc-reporting-2023.txt",
+    "metadata": {
+      "corpus_id": "fsc-reporting-2023",
+      "kind": "OFFICIAL_GUIDANCE",
+      "publisher": "금융위원회",
+      "source_url": "https://www.fsc.go.kr/po010101/80830",
+      "published_at": "2023-09-26",
+      "collected_at": "2026-09-11",
+      "reviewed_on": "2026-09-11",
+      "review_due": "2026-12-10",
+      "applicability": "KR_CONSUMER",
+      "version": "2023-09-26-summary-v1",
+      "family": "integrated-reporting",
+      "topics": [
+        "transfer"
+      ],
+      "claims": [
+        {
+          "topic": "transfer",
+          "key": "report_channel",
+          "value": "112"
+        }
+      ],
+      "content_sha256": "ba1aa86c7c5b05cc1138dce221da3d39d7447ec5b67373ef2c8dfcc4e0f6a9a6",
+      "representation": "SOURCE_SUMMARY"
+    }
+  },
+  {
+    "title": "카드 오발급·배송 사칭 사례",
+    "file": "joint-card-case-2025.txt",
+    "metadata": {
+      "corpus_id": "joint-card-case-2025",
+      "kind": "CASE",
+      "publisher": "금융위원회·금융감독원·KISA 등 관계기관 합동",
+      "source_url": "https://www.fsc.go.kr/no010101/83889",
+      "published_at": "2025-01-20",
+      "collected_at": "2026-09-11",
+      "reviewed_on": "2026-09-11",
+      "review_due": "2026-12-10",
+      "applicability": "KR_CONSUMER",
+      "version": "2025-01-20-summary-v1",
+      "family": "card-impersonation-case",
+      "topics": [
+        "smishing"
+      ],
+      "claims": [],
+      "content_sha256": "bf420623cb6e45d89b1f6d64fbb1a3a9ae24e4777e9a8c1153ac7c783dd20673",
+      "representation": "SOURCE_SUMMARY"
+    }
+  }
+]

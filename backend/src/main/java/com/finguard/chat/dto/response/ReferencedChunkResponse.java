@@ -13,4 +13,6 @@ public class ReferencedChunkResponse {
     private Long documentId;
     private String documentTitle;
     private String contentPreview;
+    private String sourceUrl;
+    private String evidenceMetadata;
 }

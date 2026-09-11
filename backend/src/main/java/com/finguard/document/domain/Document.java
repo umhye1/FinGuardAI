@@ -46,6 +46,9 @@ public class Document {
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;
 
+    @Column(name = "evidence_metadata", columnDefinition = "TEXT")
+    private String evidenceMetadata;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

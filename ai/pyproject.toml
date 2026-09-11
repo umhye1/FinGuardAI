@@ -16,6 +16,7 @@ dependencies = [
 test = ["pytest>=8,<10", "ruff>=0.9,<1"]
 
 [project.scripts]
+finguard-corpus = "finguard_ai.corpus:main"
 finguard-train = "finguard_ai.training:train_main"
 finguard-evaluate = "finguard_ai.training:evaluate_main"
 finguard-index = "finguard_ai.indexing:main"

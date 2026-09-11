@@ -114,3 +114,36 @@ def test_index_publish_rolls_back_all_vectors_on_invalid_dimension(repository):
         repository.publish(doc, repository.document_chunks(doc), [[1.0] + [0.0] * 767, [1.0]], "model-a")
     with repository.pool.connection() as conn:
         assert conn.execute("SELECT count(*) n FROM document_embeddings").fetchone()["n"] == 0
+
+
+def test_official_import_hybrid_policy_and_idempotency(repository):
+    from datetime import date
+
+    from finguard_ai.corpus import import_corpus, load_manifest
+    from finguard_ai.evidence import select_evidence
+
+    records = list(load_manifest(Path(__file__).parents[1] / "data/official/manifest.json"))
+    ids = import_corpus(repository.pool, records)
+    assert import_corpus(repository.pool, records) == ids
+    # Lexical retrieval works before a paid embedding call; CASE never answers.
+    rows = repository.policy_candidates({"transfer", "smishing"}, None, "offline-test", "문자 송금", 0.6)
+    decision = select_evidence("문자 송금", rows, today=date(2026, 9, 11))
+    assert decision.reason is None
+    assert all(c.metadata["kind"] == "OFFICIAL_GUIDANCE" for c in decision.chunks)
+    # Exercise actual pgvector + lexical union with intentionally orthogonal test embeddings.
+    for doc in ids:
+        chunks = repository.document_chunks(doc)
+        repository.publish(doc, chunks, [[1.0] + [0.0] * 767], "offline-test")
+    rows = repository.policy_candidates({"transfer"}, [1.0] + [0.0] * 767, "offline-test", "송금", 0.6)
+    assert len(rows) == 2
+    assert all(c.score > 0 for c in rows)
+    # Metadata modification is visible to the next retrieval, not an embedding cache.
+    with repository.pool.connection() as conn:
+        conn.execute(
+            "UPDATE documents SET evidence_metadata = "
+            "jsonb_set(evidence_metadata::jsonb, '{claims,0,value}', '\"synthetic-conflict\"')::text "
+            "WHERE document_id = %s",
+            (ids[3],),
+        )
+    rows = repository.policy_candidates({"transfer"}, [1.0] + [0.0] * 767, "offline-test", "송금", 0.6)
+    assert select_evidence("송금", rows, today=date(2026, 9, 11)).reason == "CONFLICTING_EVIDENCE"

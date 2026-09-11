@@ -154,11 +154,29 @@ class FinguardApiApplicationTests {
         documents.createDocument(new MockMultipartFile("file", "guide.txt", "text/plain", "guide".getBytes()), request(), "ip");
         jobs.complete(jobs.claim().orElseThrow(), "official guide");
         Long chunkId = chunks.findAll().getFirst().getChunkId();
-        var accepted = chatWriter.save(admin.getEmail(), session.getSessionId(), "question",
+        var unreviewed = chatWriter.save(admin.getEmail(), session.getSessionId(), "question",
                 new com.finguard.ai.service.RagClient.Result(com.finguard.ai.service.RagClient.Status.ANSWERED,
                         "answer", List.of(chunkId), "model1", "prompt1"));
+        assertThat(unreviewed.getAiMessage().getGenerationStatus()).isEqualTo("FAILED");
+        String hash = java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                .digest("official guide".getBytes(java.nio.charset.StandardCharsets.UTF_8)));
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        var metadata = mapper.createObjectNode().put("kind", "OFFICIAL_GUIDANCE")
+                .put("content_sha256", hash).put("source_url", "https://www.fsc.go.kr/no010101/83889")
+                .put("review_due", java.time.LocalDate.now().plusDays(30).toString());
+        jdbc.update("UPDATE documents SET evidence_metadata = ?, source_url = ? WHERE document_id = ?",
+                metadata.toString(), metadata.path("source_url").asText(), chunks.findById(chunkId).orElseThrow().getDocument().getDocumentId());
+        var result = new com.finguard.ai.service.RagClient.Result(com.finguard.ai.service.RagClient.Status.ANSWERED,
+                "answer", List.of(chunkId), "model1", "prompt1", null, "evidence-policy-v1",
+                Map.of(String.valueOf(chunkId), new com.finguard.ai.service.RagClient.CitationSnapshot(hash, metadata)));
+        var accepted = chatWriter.save(admin.getEmail(), session.getSessionId(), "question", result);
         assertThat(accepted.getAiMessage().getReferencedChunks()).hasSize(1);
         assertThat(accepted.getAiMessage().getReferencedChunks().getFirst().getContentPreview()).isEqualTo("official guide");
+        assertThat(accepted.getAiMessage().getPolicyVersion()).isEqualTo("evidence-policy-v1");
+        jdbc.update("UPDATE document_chunks SET content = 'changed after generation' WHERE chunk_id = ?", chunkId);
+        var changed = chatWriter.save(admin.getEmail(), session.getSessionId(), "question", result);
+        assertThat(changed.getAiMessage().getGenerationStatus()).isEqualTo("FAILED");
+
     }
     @Test void concurrentRefreshHasExactlyOneWinner() {
         String sid = UUID.randomUUID().toString();

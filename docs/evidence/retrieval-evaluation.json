@@ -1,0 +1,178 @@
+{
+  "as_of": "2026-09-11",
+  "policy_version": "evidence-policy-v1",
+  "manifest_sha256": "54290d2902adf6ba6db0a78510ac6ee4345539872f50bef5f79182c3df3d0fcd",
+  "embedding": "offline character TF-IDF cosine, max 768 features; NOT Gemini embeddings",
+  "baseline": "same local vector encoder, top-2 without policy",
+  "generation": "not executed; selected citation sources compared, no answer correctness claim",
+  "official_source_pages": 3,
+  "corpus_records": 5,
+  "cases": [
+    {
+      "id": "transfer",
+      "question": "사기범에게 돈을 송금했어요. 지급정지하려면?",
+      "baseline_ids": [
+        "joint-transfer-2025",
+        "kisa-mobile-payment-2025"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "joint-transfer-2025",
+          "source_url": "https://www.fsc.go.kr/no010101/83889",
+          "version": "2025-01-20-summary-v1",
+          "content_sha256": "c1bd46ec85614c62382563d51375fd191e5f19e115031e95fe25d3a8674dd4cb"
+        },
+        {
+          "corpus_id": "fsc-reporting-2023",
+          "source_url": "https://www.fsc.go.kr/po010101/80830",
+          "version": "2023-09-26-summary-v1",
+          "content_sha256": "ba1aa86c7c5b05cc1138dce221da3d39d7447ec5b67373ef2c8dfcc4e0f6a9a6"
+        }
+      ]
+    },
+    {
+      "id": "smishing",
+      "question": "문자 링크와 악성앱이 의심돼요",
+      "baseline_ids": [
+        "kisa-smishing-2025",
+        "fsc-reporting-2023"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "kisa-smishing-2025",
+          "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+          "version": "2025-04-01-summary-v1",
+          "content_sha256": "2899ac15d70166eca30262bca6c3b519b524b6055468c3a07f37e319ec98db1b"
+        }
+      ]
+    },
+    {
+      "id": "mobile",
+      "question": "휴대폰 소액결제 피해를 취소하려면?",
+      "baseline_ids": [
+        "kisa-mobile-payment-2025",
+        "joint-transfer-2025"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "kisa-mobile-payment-2025",
+          "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+          "version": "2025-04-01-summary-v1",
+          "content_sha256": "9dcae2086e65f72ac446b1d7513ce32ea9e5124fa29fe461b2e9fa520052751c"
+        }
+      ]
+    },
+    {
+      "id": "combined",
+      "question": "스미싱 문자를 받고 계좌로 이체했어요",
+      "baseline_ids": [
+        "kisa-smishing-2025",
+        "joint-transfer-2025"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "kisa-smishing-2025",
+          "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+          "version": "2025-04-01-summary-v1",
+          "content_sha256": "2899ac15d70166eca30262bca6c3b519b524b6055468c3a07f37e319ec98db1b"
+        },
+        {
+          "corpus_id": "joint-transfer-2025",
+          "source_url": "https://www.fsc.go.kr/no010101/83889",
+          "version": "2025-01-20-summary-v1",
+          "content_sha256": "c1bd46ec85614c62382563d51375fd191e5f19e115031e95fe25d3a8674dd4cb"
+        }
+      ]
+    },
+    {
+      "id": "paraphrase",
+      "question": "돈을 보냈는데 사기 같아요",
+      "baseline_ids": [
+        "joint-card-case-2025",
+        "joint-transfer-2025"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "joint-transfer-2025",
+          "source_url": "https://www.fsc.go.kr/no010101/83889",
+          "version": "2025-01-20-summary-v1",
+          "content_sha256": "c1bd46ec85614c62382563d51375fd191e5f19e115031e95fe25d3a8674dd4cb"
+        },
+        {
+          "corpus_id": "fsc-reporting-2023",
+          "source_url": "https://www.fsc.go.kr/po010101/80830",
+          "version": "2023-09-26-summary-v1",
+          "content_sha256": "ba1aa86c7c5b05cc1138dce221da3d39d7447ec5b67373ef2c8dfcc4e0f6a9a6"
+        }
+      ]
+    },
+    {
+      "id": "case",
+      "question": "카드 배송 사칭 문자를 받았어요",
+      "baseline_ids": [
+        "joint-card-case-2025",
+        "kisa-smishing-2025"
+      ],
+      "baseline_required_covered": true,
+      "status": "ANSWERABLE",
+      "reason": null,
+      "policy_correct": true,
+      "selected": [
+        {
+          "corpus_id": "kisa-smishing-2025",
+          "source_url": "https://spam.kisa.or.kr/spam/na/ntt/selectNttInfo.do?bbsId=1001&mi=1019&nttSn=2642",
+          "version": "2025-04-01-summary-v1",
+          "content_sha256": "2899ac15d70166eca30262bca6c3b519b524b6055468c3a07f37e319ec98db1b"
+        }
+      ]
+    },
+    {
+      "id": "ambiguous",
+      "question": "피해를 봤어요 어떻게 하죠",
+      "baseline_ids": [
+        "joint-transfer-2025",
+        "kisa-mobile-payment-2025"
+      ],
+      "baseline_required_covered": null,
+      "status": "INSUFFICIENT_EVIDENCE",
+      "reason": "NEEDS_CLARIFICATION",
+      "policy_correct": true,
+      "selected": []
+    },
+    {
+      "id": "out_of_scope",
+      "question": "해외 투자 세금 환급 절차",
+      "baseline_ids": [
+        "joint-transfer-2025",
+        "kisa-mobile-payment-2025"
+      ],
+      "baseline_required_covered": null,
+      "status": "INSUFFICIENT_EVIDENCE",
+      "reason": "NEEDS_CLARIFICATION",
+      "policy_correct": true,
+      "selected": []
+    }
+  ],
+  "policy_correct": 8,
+  "sample_count": 8
+}

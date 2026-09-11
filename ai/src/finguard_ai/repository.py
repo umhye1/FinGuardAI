@@ -1,6 +1,6 @@
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
@@ -15,6 +15,7 @@ class Chunk:
     title: str
     content: str
     score: float = 0
+    metadata: dict = field(default_factory=dict)
 
     @property
     def content_hash(self):
@@ -33,7 +34,7 @@ class CorpusRepository:
         with self.pool.connection() as conn:
             rows = conn.execute(
                 """
-                SELECT c.chunk_id, d.document_id, d.title, c.content
+                SELECT c.chunk_id, d.document_id, d.title, c.content, COALESCE(d.evidence_metadata::jsonb, '{}'::jsonb) AS metadata
                 FROM document_chunks c JOIN documents d USING(document_id)
                 WHERE d.document_id = %s AND d.status = 'COMPLETED'
                 ORDER BY c.chunk_index
@@ -41,6 +42,30 @@ class CorpusRepository:
                 (document_id,),
             ).fetchall()
         return [Chunk(**r) for r in rows]
+
+    def policy_candidates(self, topics, vector, model, question, min_score):
+        from finguard_ai.evidence import hybrid_rank
+
+        with self.pool.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT c.chunk_id, d.document_id, d.title, c.content,
+                       d.evidence_metadata::jsonb AS metadata,
+                       CASE WHEN e.content_hash = encode(sha256(convert_to(c.content, 'UTF8')), 'hex')
+                            THEN 1 - (e.embedding <=> %s::vector) ELSE -2 END AS vector_score
+                FROM document_chunks c JOIN documents d USING(document_id)
+                LEFT JOIN document_embeddings e ON e.chunk_id = c.chunk_id AND e.embedding_model = %s
+                WHERE d.status = 'COMPLETED' AND d.evidence_metadata IS NOT NULL
+                  AND (d.evidence_metadata::jsonb->'topics') ?| %s::text[]
+                ORDER BY c.chunk_id LIMIT 201
+            """,
+                (json.dumps(vector) if vector else None, model, sorted(topics)),
+            ).fetchall()
+        scores = {}
+        for r in rows:
+            score = r.pop("vector_score")
+            scores[r["chunk_id"]] = score if score is not None else -2
+        return hybrid_rank([Chunk(**r) for r in rows], scores, question, min_score)
 
     def has_embeddings(self, model: str) -> bool:
         with self.pool.connection() as conn:

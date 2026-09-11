@@ -41,6 +41,8 @@ export type Message = {
     chunkId: number;
     documentTitle: string;
     contentPreview: string;
+    sourceUrl?: string;
+    evidenceMetadata?: string;
   }[];
 };
 export type Document = {
