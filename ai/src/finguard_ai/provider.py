@@ -37,17 +37,22 @@ class GeminiProvider:
     def close(self):
         self.client.close()
 
+    @property
+    def api_key(self):
+        return self.settings.gemini_api_key
+
+    def headers(self):
+        return {"x-goog-api-key": self.api_key.get_secret_value()}
+
     def _post(self, path: str, payload: dict) -> dict:
-        if not self.settings.gemini_api_key:
+        if not self.api_key:
             raise ServiceUnavailable("PROVIDER_NOT_CONFIGURED")
         try:
             with self.client.stream(
                 "POST",
                 path,
                 json=payload,
-                headers={
-                    "x-goog-api-key": self.settings.gemini_api_key.get_secret_value(),
-                },
+                headers=self.headers(),
             ) as response:
                 response.raise_for_status()
                 data = bytearray()
@@ -138,3 +143,117 @@ class GeminiProvider:
             )
         except ValidationError as e:
             raise ServiceUnavailable("INVALID_CLASSIFICATION") from e
+
+
+def strict_json_schema(schema: dict) -> dict:
+    """Require every object property, including nullable/default-valued fields."""
+    if isinstance(schema, dict):
+        result = {k: strict_json_schema(v) for k, v in schema.items() if k != "default"}
+        if result.get("type") == "object":
+            result["additionalProperties"] = False
+            result["required"] = list(result.get("properties", {}))
+        return result
+    if isinstance(schema, list):
+        return [strict_json_schema(v) for v in schema]
+    return schema
+
+
+class OpenAIProvider(GeminiProvider):
+    def __init__(self, settings: Settings, client: httpx.Client | None = None):
+        super().__init__(
+            settings,
+            client
+            or httpx.Client(
+                base_url="https://api.openai.com/v1/",
+                timeout=settings.request_timeout_seconds,
+                limits=httpx.Limits(
+                    max_connections=settings.max_concurrent_requests, max_keepalive_connections=4
+                ),
+            ),
+        )
+
+    @property
+    def api_key(self):
+        return self.settings.openai_api_key
+
+    @property
+    def configured(self):
+        return bool(self.api_key and self.settings.generation_model)
+
+    def headers(self):
+        return {"Authorization": "Bearer " + self.api_key.get_secret_value()}
+
+    def generate(self, system: str, payload: dict, schema: type[T]) -> T:
+        if not self.configured:
+            raise ServiceUnavailable("GENERATION_NOT_CONFIGURED")
+        data = self._post(
+            "responses",
+            {
+                "model": self.settings.generation_model,
+                "instructions": system,
+                "input": json.dumps(payload, ensure_ascii=False),
+                "store": False,
+                "max_output_tokens": 3000,
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": schema.__name__,
+                        "strict": True,
+                        "schema": strict_json_schema(schema.model_json_schema()),
+                    }
+                },
+            },
+        )
+        try:
+            if data.get("status") != "completed":
+                raise ValueError("Incomplete generation")
+            parts = [
+                part for item in data["output"] if item.get("type") == "message" for part in item["content"]
+            ]
+            if any(part.get("type") == "refusal" for part in parts):
+                raise ValueError("Refusal")
+            text = "".join(part["text"] for part in parts if part.get("type") == "output_text")
+            return schema.model_validate_json(text)
+        except (KeyError, IndexError, TypeError, AttributeError, ValueError) as e:
+            raise ServiceUnavailable("INVALID_GENERATION") from e
+
+    def embed(self, texts: list[str], task: str) -> list[list[float]]:
+        if not texts:
+            return []
+        if len(texts) > 32:
+            raise ValueError("Embedding batch exceeds 32")
+        result = self._post(
+            "embeddings",
+            {
+                "model": self.settings.embedding_model,
+                "input": [mask(t) for t in texts],
+                "dimensions": 768,
+                "encoding_format": "float",
+            },
+        )
+        try:
+            rows = sorted(result["data"], key=lambda row: row["index"])
+            if [row["index"] for row in rows] != list(range(len(texts))):
+                raise ValueError("Embedding indices mismatch")
+            vectors = []
+            for row in rows:
+                vector = row["embedding"]
+                if len(vector) != 768 or any(
+                    type(v) not in (int, float) or not math.isfinite(v) for v in vector
+                ):
+                    raise ValueError("Invalid vector")
+                norm = math.sqrt(sum(v * v for v in vector))
+                if not norm or not math.isfinite(norm):
+                    raise ValueError("Invalid vector norm")
+                vectors.append([v / norm for v in vector])
+            return vectors
+        except (KeyError, TypeError, ValueError) as e:
+            raise ServiceUnavailable("INVALID_EMBEDDING") from e
+
+
+def create_provider(settings: Settings, client: httpx.Client | None = None):
+    return (
+        OpenAIProvider(settings, client)
+        if settings.provider == "openai"
+        else GeminiProvider(settings, client)
+    )

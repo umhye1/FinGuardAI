@@ -3,7 +3,7 @@ import json
 
 from finguard_ai.config import Settings
 from finguard_ai.errors import StaleDocument
-from finguard_ai.provider import GeminiProvider
+from finguard_ai.provider import create_provider
 from finguard_ai.repository import CorpusRepository, make_pool
 
 
@@ -33,7 +33,7 @@ def main():
     settings = Settings()
     if not settings.connection_info:
         parser.error("AI_DATABASE_URL is required")
-    provider = GeminiProvider(settings)
+    provider = create_provider(settings)
     pool = make_pool(settings.connection_info, settings.pool_max_size)
     try:
         pool.open()
