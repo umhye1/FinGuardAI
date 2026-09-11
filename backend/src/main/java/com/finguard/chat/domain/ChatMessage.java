@@ -46,6 +46,10 @@ public class ChatMessage {
     @Column(length = 100) private String modelVersion;
     @Column(length = 100) private String promptVersion;
 
+    @Column(length = 100) private String reasonCode;
+    @Column(length = 100) private String policyVersion;
+    public void setEvidenceDecision(String reason, String policy) { reasonCode = reason; policyVersion = policy; }
+
     public void setGenerationMetadata(String status, String model, String prompt) {
         generationStatus = status; modelVersion = model; promptVersion = prompt;
     }

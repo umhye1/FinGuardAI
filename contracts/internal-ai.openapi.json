@@ -141,7 +141,8 @@
                     "answer": {
                       "type": "string",
                       "minLength": 1,
-                      "maxLength": 10000
+                      "maxLength": 10000,
+                      "nullable": true
                     },
                     "chunkIds": {
                       "type": "array",
@@ -150,24 +151,60 @@
                         "format": "int64",
                         "minimum": 1
                       },
-                      "minItems": 1,
+                      "minItems": 0,
                       "maxItems": 10
                     },
                     "modelVersion": {
                       "type": "string",
                       "minLength": 1,
-                      "maxLength": 100
+                      "maxLength": 100,
+                      "nullable": true
                     },
                     "promptVersion": {
                       "type": "string",
                       "minLength": 1,
+                      "maxLength": 100,
+                      "nullable": true
+                    },
+                    "reasonCode": {
+                      "type": "string",
+                      "nullable": true,
                       "maxLength": 100
+                    },
+                    "clarificationQuestion": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 500
+                    },
+                    "policyVersion": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 100
+                    },
+                    "evidenceSnapshots": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "contentHash",
+                          "metadata"
+                        ],
+                        "properties": {
+                          "contentHash": {
+                            "type": "string",
+                            "pattern": "^[a-f0-9]{64}$"
+                          },
+                          "metadata": {
+                            "type": "object"
+                          }
+                        }
+                      }
                     }
                   },
                   "required": [
                     "status"
                   ],
-                  "description": "ANSWERED requires answer, chunkIds, modelVersion and promptVersion. INSUFFICIENT_EVIDENCE needs only status. Chunk IDs must be IDs from the shared corpus database, not model-invented IDs."
+                  "description": "ANSWERED requires nonempty answer/chunkIds, modelVersion, promptVersion, policyVersion=evidence-policy-v1 and an evidenceSnapshot per cited chunk. Spring compares content hash and metadata with the database. INSUFFICIENT_EVIDENCE has no answer/citations; reasonCode distinguishes conflict, missing evidence and clarification. Dates/priority/claims apply only within the reviewed corpus; semantic answer entailment is not guaranteed."
                 }
               }
             }

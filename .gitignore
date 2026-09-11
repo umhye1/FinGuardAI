@@ -92,3 +92,6 @@ __pycache__/
 ai/.artifacts/
 ai/data/private/
 ai/.coverage
+
+# Locally retained official source snapshots (publish summaries and provenance only)
+ai/data/official/raw/

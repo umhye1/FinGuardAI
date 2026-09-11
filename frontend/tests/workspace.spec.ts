@@ -47,6 +47,33 @@ test("user analysis, evidence abstention, history and role navigation", async ({
           generationStatus: "INSUFFICIENT_EVIDENCE",
           referencedChunks: [],
         },
+        {
+          messageId: 2,
+          sender: "AI",
+          generationStatus: "ANSWERED",
+          message: "검토된 근거의 안내입니다.",
+          referencedChunks: [
+            {
+              chunkId: 1,
+              documentTitle: "공식 안내",
+              contentPreview: "확인한 안내 문단",
+              sourceUrl: "https://www.fsc.go.kr/no010101/83889",
+              evidenceMetadata: JSON.stringify({
+                publisher: "관계기관 합동",
+                published_at: "2025-01-20",
+                representation: "SOURCE_SUMMARY",
+              }),
+            },
+          ],
+        },
+        {
+          messageId: 3,
+          sender: "AI",
+          generationStatus: "INSUFFICIENT_EVIDENCE",
+          message:
+            "공식 자료의 대응 절차가 서로 달라 답변을 보류합니다. 담당 기관의 확인이 필요합니다.",
+          referencedChunks: [],
+        },
       ];
     await route.fulfill({ json: { data } });
   });
@@ -79,6 +106,18 @@ test("user analysis, evidence abstention, history and role navigation", async ({
   await page.getByRole("button", { name: "+ 새 대화" }).click();
   await expect(
     page.getByText("답변에 필요한 공식 문서 근거가 부족합니다."),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "공식 자료의 대응 절차가 서로 달라 답변을 보류합니다. 담당 기관의 확인이 필요합니다.",
+    ),
+  ).toBeVisible();
+  await page.getByText("공식 안내 · 근거 문단").click();
+  await expect(
+    page.getByRole("link", { name: "공식 출처 확인" }),
+  ).toHaveAttribute("href", "https://www.fsc.go.kr/no010101/83889");
+  await expect(
+    page.getByText("관계기관 합동 · 게시일 2025-01-20 · 원문 기반 요약"),
   ).toBeVisible();
   await expect
     .poll(() =>

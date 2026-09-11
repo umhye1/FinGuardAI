@@ -42,7 +42,16 @@ class GeneratedAnswer(StrictModel):
     chunkIds: list[int] = Field(default_factory=list, max_length=10)
 
 
+class CitationSnapshot(StrictModel):
+    contentHash: str
+    metadata: dict
+
+
 class RagResult(StrictModel):
+    evidenceSnapshots: dict[str, CitationSnapshot] = Field(default_factory=dict)
+    reasonCode: str | None = None
+    clarificationQuestion: str | None = None
+    policyVersion: str | None = None
     status: Literal["ANSWERED", "INSUFFICIENT_EVIDENCE"]
     answer: str | None = None
     chunkIds: list[int] = Field(default_factory=list, max_length=10)

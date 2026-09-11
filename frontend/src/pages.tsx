@@ -2,6 +2,20 @@ import { useState } from "react";
 import { api, json } from "./api";
 import type { Analysis, ChatSession, Message } from "./types";
 import { date, Empty, Loading, Notice, Risk, Title, useLoad } from "./ui";
+function EvidenceSource({ metadata }: { metadata?: string }) {
+  if (!metadata) return null;
+  try {
+    const m = JSON.parse(metadata);
+    return (
+      <p className="muted">
+        {m.publisher} · 게시일 {m.published_at} ·{" "}
+        {m.representation === "SOURCE_SUMMARY" ? "원문 기반 요약" : "원문 발췌"}
+      </p>
+    );
+  } catch {
+    return null;
+  }
+}
 function Result({ value }: { value: Analysis }) {
   const [error, setError] = useState(""),
     [sent, setSent] = useState(false),
@@ -405,6 +419,16 @@ function Conversation({
                 <details key={c.chunkId}>
                   <summary>{c.documentTitle} · 근거 문단</summary>
                   <p className="prewrap">{c.contentPreview}</p>
+                  <EvidenceSource metadata={c.evidenceMetadata} />
+                  {c.sourceUrl?.startsWith("https://") && (
+                    <a
+                      href={c.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      공식 출처 확인
+                    </a>
+                  )}
                 </details>
               ))}
             </article>

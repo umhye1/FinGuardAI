@@ -5,7 +5,7 @@ Spring의 기존 내부 API 계약에 맞춘 FastAPI 서비스다. 문자 분류
 ## 구현 범위
 
 - `POST /internal/v1/classifications`: 로컬 TF-IDF 문자 n-gram + 로지스틱 회귀 또는 Gemini 구조화 분류. 모델 점수는 사기 확률로 표시하지 않는다.
-- `POST /internal/v1/rag/answers`: 질문 임베딩 → 정확 코사인 검색 → JSON 구조화 답변 → 검색 후보 인용 검증 → 문서 재확인.
+- `POST /internal/v1/rag/answers`: 주제별 검토 문서 → 키워드·벡터 RRF 검색 → 필수 근거·최신 버전·구조화 절차 충돌 검사 → 생성 → 인용 스냅샷 재검증.
 - 두 API는 `X-Service-Token`을 상수시간 비교로 검증한다. 미설정/32자 미만 토큰으로 서버를 시작할 수 없다.
 - 10000자 입력, 64KiB HTTP body 한도, 동시 요청 한도, provider 응답 2MiB 한도, 타임아웃을 적용한다. 원문과 API 키를 로그에 남기지 않는다.
 - `/health/live`는 프로세스 생존, `/health/ready`는 분류기 준비·생성 설정·DB 테이블 접근을 확인한다. 외부 제공자의 실제 응답 가능성이나 모델 품질을 보증하지 않는다. 분류만 사용할 때 readiness가 503이어도 local 분류 API는 사용 가능하다.
@@ -103,7 +103,7 @@ finguard-index --document-id 1
 - provider 호출 중 DB 트랜잭션을 열어두지 않는다. 저장 직전에 문서 잠금과 청크 스냅샷을 대조한다. 변경/삭제되었으면 전체 저장을 거부한다.
 - 요청 하나에서 최대 2000개 청크를 처리하고 batch는 32개다. 작업 중단 시 CLI 재실행이 필요하다.
 - 재처리로 삭제된 청크의 벡터는 FK cascade로 삭제된다. 원문 해시가 달라진 벡터와 PROCESSING/FAILED 문서는 검색에서 제외한다.
-- 초기 검색은 정확 검색이다. HNSW/혼합 검색/reranker는 검색 평가와 데이터 규모가 확보된 뒤 비교한다.
+- 벡터는 정확 코사인 검색이며 키워드 순위와 RRF로 결합한다. 임베딩이 없으면 키워드만 사용한다. HNSW·학습형 reranker는 미구현이다.
 
 RAG는 검색 후보가 없거나 모델이 근거 부족을 반환하면 INSUFFICIENT_EVIDENCE를 반환한다. 실제 검색 후보 밖의 인용 ID는 거부한다. 인용 존재와 문서 변경 검증은 구현했지만, 답변과 인용의 의미적 일치·정책 최신성까지 자동 보장하지 않는다.
 
@@ -124,4 +124,4 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 
 ## 남은 범위
 
-실사용 가능한 라벨 데이터 확보와 모델 평가, 실제 제공자 연동 확인, 공식 문서 수집/출처·버전 승인, RAG 품질 평가셋, 인덱싱 관리자 작업 API, OCR, 프론트엔드는 후속 작업이다. Kafka·멀티에이전트는 추가하지 않았다.
+소규모 공식 출처 요약 corpus와 정책 테스트를 추가했다. 등록·출처·검토 기준·한계는 [근거 정책 구현 기록](../docs/evidence/implementation.md)을 따른다. 실사용 분류 데이터·평가, 실제 생성 모델의 의미적 품질 평가, 검토 corpus 확대, 인덱싱 관리자 작업 API, OCR은 후속 작업이다. Kafka·멀티에이전트는 추가하지 않았다.

@@ -19,6 +19,9 @@ class Provider:
 
 
 class EmptyRepository:
+    def policy_candidates(self, *args):
+        return []
+
     def has_embeddings(self, model):
         return False
 

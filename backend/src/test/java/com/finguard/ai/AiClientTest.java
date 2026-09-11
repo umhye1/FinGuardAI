@@ -60,4 +60,22 @@ class AiClientTest {
         assertThat(result.status()).isEqualTo(RagClient.Status.INSUFFICIENT_EVIDENCE);
         assertThat(result.answer()).doesNotContain("made up");
     }
+    @Test void conflictAndClarificationUseBackendOwnedMessages() {
+        for (String reason : new String[]{"CONFLICTING_EVIDENCE", "NEEDS_CLARIFICATION"}) {
+            response.set("{\"status\":\"INSUFFICIENT_EVIDENCE\",\"reasonCode\":\"" + reason
+                    + "\",\"policyVersion\":\"evidence-policy-v1\",\"answer\":\"unsafe\",\"clarificationQuestion\":\"unsafe question\"}");
+            var result = new RagClient(true, url, "test", 2000, new PrivacyMasker()).answer("question");
+            assertThat(result.reasonCode()).isEqualTo(reason);
+            assertThat(result.answer()).doesNotContain("unsafe");
+            assertThat(result.chunkIds()).isEmpty();
+        }
+    }
+    @Test void acceptsOnlySnapshotsMatchingEveryCitationId() {
+        response.set("{\"status\":\"ANSWERED\",\"answer\":\"answer\",\"chunkIds\":[1],"
+                + "\"modelVersion\":\"m1\",\"promptVersion\":\"p1\",\"policyVersion\":\"evidence-policy-v1\","
+                + "\"evidenceSnapshots\":{\"2\":{\"contentHash\":\"hash\",\"metadata\":{}}}}");
+        assertThat(new RagClient(true, url, "test", 2000, new PrivacyMasker()).answer("question").status())
+                .isEqualTo(RagClient.Status.FAILED);
+    }
+
 }

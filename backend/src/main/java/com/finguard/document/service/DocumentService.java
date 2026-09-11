@@ -211,7 +211,10 @@ public class DocumentService {
 
     private void deleteFile(String filePath) {
         try{
-            Files.deleteIfExists(Paths.get(filePath));
+            Path target = Paths.get(filePath).toAbsolutePath().normalize();
+            if (target.startsWith(Paths.get(uploadDir).toAbsolutePath().normalize())) {
+                Files.deleteIfExists(target);
+            }
         }catch (Exception e) {
             throw new IllegalStateException("문서 파일 삭제 중 오류가 발생했습니다.", e);
         }

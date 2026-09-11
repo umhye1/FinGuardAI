@@ -11,6 +11,8 @@ import java.util.List;
 @Builder
 public class ChatMessageResponse {
     private String generationStatus;
+    private String reasonCode;
+    private String policyVersion;
     private String modelVersion;
     private String promptVersion;
     private Long messageId;
@@ -25,6 +27,7 @@ public class ChatMessageResponse {
                 .sender(message.getSender().name())
                 .message(message.getMessage())
                 .referencedChunks(parseReferences(message.getReferencedChunks()))
+                .reasonCode(message.getReasonCode()).policyVersion(message.getPolicyVersion())
                 .generationStatus(message.getGenerationStatus())
                 .modelVersion(message.getModelVersion())
                 .promptVersion(message.getPromptVersion())
