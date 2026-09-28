@@ -61,3 +61,17 @@ class Settings(BaseSettings):
         if self.classifier_mode != "local" and not self.generation_model:
             raise ValueError("AI_GENERATION_MODEL is required for API classification")
         return self
+
+
+def load_settings(path):
+    # An explicit local file must not silently borrow credentials from the parent shell.
+    if path is None:
+        return Settings()
+    from dotenv import dotenv_values
+
+    values = dotenv_values(path)
+    return Settings(
+        _env_file=path,
+        openai_api_key=values.get("AI_OPENAI_API_KEY") or values.get("OPENAI_API_KEY") or None,
+        gemini_api_key=values.get("AI_GEMINI_API_KEY") or None,
+    )

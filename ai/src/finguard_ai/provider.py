@@ -64,6 +64,13 @@ class GeminiProvider:
                 if not isinstance(result, dict):
                     raise ValueError("Expected object")
                 return result
+        except httpx.HTTPStatusError as e:
+            code = {
+                401: "PROVIDER_AUTH_FAILED",
+                403: "PROVIDER_AUTH_FAILED",
+                429: "PROVIDER_RATE_LIMITED",
+            }.get(e.response.status_code, "PROVIDER_UNAVAILABLE")
+            raise ServiceUnavailable(code) from e
         except (httpx.HTTPError, ValueError) as e:
             # Never include provider body, input text, credentials, or URL query values.
             raise ServiceUnavailable("PROVIDER_UNAVAILABLE") from e

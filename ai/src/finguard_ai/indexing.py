@@ -1,7 +1,7 @@
 import argparse
 import json
 
-from finguard_ai.config import Settings
+from finguard_ai.config import load_settings
 from finguard_ai.errors import StaleDocument
 from finguard_ai.provider import create_provider
 from finguard_ai.repository import CorpusRepository, make_pool
@@ -27,10 +27,11 @@ def main():
         description="Index an already uploaded/completed document; calls paid embedding API."
     )
     parser.add_argument("--document-id", type=int, required=True)
+    parser.add_argument("--env-file", help="Explicit local dotenv file")
     args = parser.parse_args()
     if args.document_id <= 0:
         parser.error("document-id must be positive")
-    settings = Settings()
+    settings = load_settings(args.env_file)
     if not settings.connection_info:
         parser.error("AI_DATABASE_URL is required")
     provider = create_provider(settings)

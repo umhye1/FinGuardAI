@@ -15,6 +15,7 @@ class AiClientTest {
     AtomicReference<String> body = new AtomicReference<>();
     AtomicReference<String> token = new AtomicReference<>();
     AtomicReference<String> response = new AtomicReference<>();
+    java.util.concurrent.atomic.AtomicInteger status = new java.util.concurrent.atomic.AtomicInteger(200);
     @BeforeEach void setup() throws Exception {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/internal/v1/", exchange -> {
@@ -22,7 +23,7 @@ class AiClientTest {
             token.set(exchange.getRequestHeaders().getFirst("X-Service-Token"));
             byte[] bytes = response.get().getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
-            exchange.sendResponseHeaders(200, bytes.length);
+            exchange.sendResponseHeaders(status.get(), bytes.length);
             exchange.getResponseBody().write(bytes);
             exchange.close();
         });
@@ -49,6 +50,13 @@ class AiClientTest {
         assertThat(body.get()).isNull();
         server.stop(0);
         assertThat(classifier().classify("test").errorCode()).isEqualTo("AI_UNAVAILABLE");
+    }
+    @Test void exposesOnlyAllowlistedAiErrorCodes() {
+        status.set(503);
+        response.set("{\"error\":\"GENERATION_NOT_CONFIGURED\"}");
+        assertThat(classifier().classify("test").errorCode()).isEqualTo("GENERATION_NOT_CONFIGURED");
+        response.set("{\"error\":\"private-provider-message\"}");
+        assertThat(classifier().classify("test").errorCode()).isEqualTo("AI_HTTP_ERROR");
     }
     @Test void rejectsAnswerWithoutEvidence() {
         response.set("{\"status\":\"ANSWERED\",\"answer\":\"unsupported answer\",\"chunkIds\":[],\"modelVersion\":\"m1\",\"promptVersion\":\"p1\"}");

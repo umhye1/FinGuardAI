@@ -64,12 +64,22 @@ export function Risk({ level }: { level: string }) {
     MEDIUM: "보통",
     LOW: "낮음",
     SAFE: "탐지 없음",
+    CAUTION: "주의",
+    SUSPICIOUS: "의심",
+    WARNING: "경고",
+    DANGEROUS: "위험",
+    HIGH_RISK: "고위험",
+    CRITICAL: "매우 위험",
   };
   return (
     <span
       className={
         "badge " +
-        (level === "HIGH" ? "red" : level === "MEDIUM" ? "amber" : "neutral")
+        (["HIGH", "DANGEROUS", "HIGH_RISK", "CRITICAL"].includes(level)
+          ? "red"
+          : ["MEDIUM", "CAUTION", "SUSPICIOUS", "WARNING"].includes(level)
+            ? "amber"
+            : "neutral")
       }
     >
       {labels[level] || level}

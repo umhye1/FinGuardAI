@@ -5,7 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from finguard_ai.config import Settings
+from finguard_ai.config import load_settings
 from finguard_ai.evidence import EvidenceMetadata
 from finguard_ai.repository import make_pool
 
@@ -83,12 +83,13 @@ def main():
     parser.add_argument(
         "--apply", action="store_true", help="Write to configured DB; otherwise validate only"
     )
+    parser.add_argument("--env-file", help="Explicit local dotenv file")
     args = parser.parse_args()
     records = list(load_manifest(args.manifest))
     if not args.apply:
         print(json.dumps({"validated": len(records), "write": False}))
         return
-    settings = Settings()
+    settings = load_settings(args.env_file)
     if not settings.connection_info:
         raise ValueError("AI_DATABASE_* required")
     with make_pool(settings.connection_info) as pool:

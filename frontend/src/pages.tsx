@@ -33,6 +33,10 @@ function Result({ value }: { value: Analysis }) {
       </p>
       <p className="muted">점수는 사기일 확률을 의미하지 않습니다.</p>
       {value.inputText && <blockquote>{value.inputText}</blockquote>}
+      <p className="muted">
+        예방 안내나 인용문에도 같은 단어가 포함될 수 있습니다. 규칙 점수는
+        문맥을 판단하지 않습니다.
+      </p>
       <h3>탐지한 키워드</h3>
       <div className="chips">
         {value.detectedKeywordRespons?.length ? (
@@ -49,14 +53,33 @@ function Result({ value }: { value: Analysis }) {
       </div>
       <h3>AI 분류</h3>
       <p>
-        {!model || model.status !== "COMPLETED"
-          ? "AI 분석을 완료하지 못했습니다. 규칙 기반 결과만 표시합니다."
-          : model.decision === "ABSTAIN"
-            ? "판단 보류 · AI가 확실하게 분류하지 못했습니다."
-            : model.decision === "FLAG"
-              ? "피싱 의심 신호가 있습니다."
-              : "AI에서 피싱 신호를 분류하지 않았습니다. 안전 여부는 별도 확인이 필요합니다."}
+        {model?.status === "NOT_REQUESTED"
+          ? "AI 분석이 비활성화되어 있습니다. 현재는 규칙 기반 결과만 표시합니다."
+          : !model || model.status !== "COMPLETED"
+            ? "AI 분석을 완료하지 못했습니다. 규칙 기반 결과만 표시합니다."
+            : model.decision === "ABSTAIN"
+              ? "판단 보류 · AI가 확실하게 분류하지 못했습니다."
+              : model.decision === "FLAG"
+                ? "피싱 의심 신호가 있습니다."
+                : "AI에서 피싱 신호를 분류하지 않았습니다. 안전 여부는 별도 확인이 필요합니다."}
       </p>
+      {model?.status === "FAILED" && (
+        <p className="muted">
+          {(
+            {
+              PROVIDER_AUTH_FAILED: "AI 제공자 인증을 확인해야 합니다.",
+              PROVIDER_RATE_LIMITED:
+                "AI 호출 한도에 도달했습니다. 잠시 후 다시 시도해 주세요.",
+              GENERATION_NOT_CONFIGURED: "AI 키 또는 모델 설정이 필요합니다.",
+              PROVIDER_NOT_CONFIGURED: "AI 제공자 설정이 필요합니다.",
+              CLASSIFIER_NOT_READY: "AI 분류 모델이 준비되지 않았습니다.",
+              AI_SERVICE_AUTH_FAILED:
+                "내부 AI 서버 인증 설정을 확인해야 합니다.",
+              AI_UNAVAILABLE: "AI 서버 연결 또는 응답 시간을 확인해야 합니다.",
+            } as Record<string, string>
+          )[model.errorCode ?? ""] ?? "AI 서버에서 요청을 처리하지 못했습니다."}
+        </p>
+      )}
       <h3>규칙 기반 설명</h3>
       <p className="prewrap">{value.ruleReason}</p>
       <h3>대응 안내</h3>
