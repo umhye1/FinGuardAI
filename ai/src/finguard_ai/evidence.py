@@ -61,6 +61,7 @@ class EvidenceMetadata(StrictModel):
             "www.fss.or.kr",
             "www.kisa.or.kr",
             "www.kisa.kr",
+            "www.krcert.or.kr",
             "spam.kisa.or.kr",
         }:
             raise ValueError("Unapproved source host")
