@@ -27,11 +27,16 @@ class DatabaseMigrationToolTest {
     }
     void migrate() throws Exception { DatabaseMigrationTool.migrate(postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword(), true); }
     @Test void preservesLegacyRowsAndAdvancesSequenceThenValidatesRerun() throws Exception {
+        try (Connection c=connect(); Statement s=c.createStatement()) {
+            s.execute("INSERT INTO phishing_keywords(keyword,risk_score,category,description,active,created_at) VALUES ('원격제어',7,'PERSONAL_INFO_REQUEST','admin edited',false,now())");
+        }
         migrate(); migrate();
         try (Connection c=connect(); Statement s=c.createStatement()) {
+            try (ResultSet r=s.executeQuery("SELECT risk_score,active FROM phishing_keywords WHERE keyword='원격제어'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(7); assertThat(r.getBoolean(2)).isFalse(); }
+            try (ResultSet r=s.executeQuery("SELECT count(*) FROM phishing_keywords WHERE keyword='저금리대출'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(1); }
             try (ResultSet r=s.executeQuery("SELECT content FROM document_chunks WHERE document_id=80")) { r.next(); assertThat(r.getString(1)).isEqualTo("original content"); }
             try (ResultSet r=s.executeQuery("SELECT nextval('document_seq')")) { r.next(); assertThat(r.getLong(1)).isGreaterThan(80); }
-            try (ResultSet r=s.executeQuery("SELECT max(version::int) FROM flyway_schema_history WHERE type <> 'BASELINE'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(7); }
+            try (ResultSet r=s.executeQuery("SELECT max(version::int) FROM flyway_schema_history WHERE type <> 'BASELINE'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(8); }
         }
     }
     @Test void rejectsUnknownColumnsWithoutBaselining() throws Exception {

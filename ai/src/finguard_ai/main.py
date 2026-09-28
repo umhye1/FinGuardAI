@@ -124,7 +124,15 @@ def create_app(settings: Settings | None = None, injected: Services | None = Non
         return JSONResponse(status_code=422, content={"error": "INVALID_REQUEST"})
 
     async def unavailable(request, exc):
-        return JSONResponse(status_code=503, content={"error": "AI_UNAVAILABLE"})
+        allowed = {
+            "PROVIDER_AUTH_FAILED",
+            "PROVIDER_RATE_LIMITED",
+            "PROVIDER_NOT_CONFIGURED",
+            "GENERATION_NOT_CONFIGURED",
+            "CLASSIFIER_NOT_READY",
+        }
+        code = str(exc) if isinstance(exc, ServiceUnavailable) and str(exc) in allowed else "AI_UNAVAILABLE"
+        return JSONResponse(status_code=503, content={"error": code})
 
     app.add_exception_handler(ServiceUnavailable, unavailable)
     app.add_exception_handler(psycopg.Error, unavailable)

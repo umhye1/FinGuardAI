@@ -37,6 +37,7 @@ export type Message = {
   sender: string;
   message: string;
   generationStatus?: string;
+  reasonCode?: string;
   referencedChunks: {
     chunkId: number;
     documentTitle: string;

@@ -98,3 +98,19 @@ def test_missing_model_returns_503():
             ).status_code
             == 503
         )
+
+
+def test_safe_configuration_error_is_visible_but_raw_details_are_not():
+    from finguard_ai.errors import ServiceUnavailable
+
+    class Unconfigured:
+        def classify(self, text):
+            raise ServiceUnavailable("GENERATION_NOT_CONFIGURED")
+
+    app = create_app(Settings(service_token=TOKEN), Services(Unconfigured(), None, Provider(), False))
+    with TestClient(app) as client:
+        r = client.post(
+            "/internal/v1/classifications", json={"text": "test"}, headers={"X-Service-Token": TOKEN}
+        )
+        assert r.status_code == 503
+        assert r.json() == {"error": "GENERATION_NOT_CONFIGURED"}

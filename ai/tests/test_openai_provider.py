@@ -88,6 +88,6 @@ def test_embedding_order_dimensions_normalization_and_bad_indices():
 
 def test_http_error_is_sanitized():
     p = provider(lambda r: httpx.Response(401, json={"secret": "credential"}))
-    with pytest.raises(ServiceUnavailable, match="^PROVIDER_UNAVAILABLE$"):
+    with pytest.raises(ServiceUnavailable, match="^PROVIDER_AUTH_FAILED$"):
         p.embed(["one"], "RETRIEVAL_QUERY")
     p.close()

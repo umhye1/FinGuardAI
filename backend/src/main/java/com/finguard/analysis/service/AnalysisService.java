@@ -55,14 +55,14 @@ public class AnalysisService {
         // 사용자 입력 : [Web발신] 검찰청 사건 연루로 확인이 필요합니다. 아래 링크 접속 후 본인인증 바랍니다.
         // 에서 contains()로 키워드 포함 여부 검사
         List<DetectedKeywordResponse> detectedKeywords = activateKeywords.stream()
-                .filter(keyword->request.getText().contains(keyword.getKeyword()))
+                .filter(keyword->KeywordMatcher.matches(request.getText(), keyword.getKeyword()))
                 .map(DetectedKeywordResponse::from) // RiskKeyword 엔티티를 응답 DTO로 바꿈
                 .toList();
 
         // 5. 위험 점수 합산 - 탐지된 키워드들의 점수를 더함
-        int riskScore = detectedKeywords.stream()
+        int riskScore = Math.min(100, detectedKeywords.stream()
                 .mapToInt(DetectedKeywordResponse::getScore)
-                .sum();
+                .sum());
 
         // 6. 위험 등급 계산 - enum에서 점수를 등급으로 바꿈
         RiskLevel riskLevel = RiskLevel.fromScore(riskScore);
@@ -86,7 +86,7 @@ public class AnalysisService {
                 .ruleReason(ruleReason)
                 .aiSummary(aiSummary)
                 .modelResult(serializeModelResult(modelResult))
-                .ruleVersion("keyword-snapshot-v1")
+                .ruleVersion("keyword-normalized-v2")
                 .recommendedAction(recommendedAction)
                 .build();
         AnalysisLog savedAnalysisLog = logWriter.save(analysisLog);
@@ -130,7 +130,7 @@ public class AnalysisService {
                 .reduce((a,b) -> a + ", " + b)
                 .orElse("");
 
-        return categories+ " 패턴이 탐지되었습니다.";
+        return categories + " 관련 단어가 탐지되었습니다. 예방 안내·인용에도 포함될 수 있으므로 사기 여부를 단정하지 않습니다.";
     }
 
     // 요약 - 위험 등급에 따라 고정 문구를 반환

@@ -1,0 +1,31 @@
+[
+  {
+    "title": "추석 스미싱 예방 및 악성앱 대응 (KISA 2026-09)",
+    "file": "kisa-smishing-2026-09.txt",
+    "metadata": {
+      "corpus_id": "kisa-smishing-2026-09",
+      "kind": "OFFICIAL_GUIDANCE",
+      "publisher": "한국인터넷진흥원",
+      "source_url": "https://www.krcert.or.kr/kr/bbs/view.do?bbsId=B0000133&categoryCode=&menuNo=205020&nttId=72191&pageIndex=1&searchCnd=&searchWrd=",
+      "published_at": "2026-09-17",
+      "collected_at": "2026-09-28",
+      "reviewed_on": "2026-09-28",
+      "review_due": "2026-12-27",
+      "applicability": "KR_CONSUMER",
+      "version": "2026-09-17-summary-v1",
+      "family": "smishing-response",
+      "topics": [
+        "smishing"
+      ],
+      "claims": [
+        {
+          "topic": "smishing",
+          "key": "consultation",
+          "value": "118"
+        }
+      ],
+      "content_sha256": "7e21378821326b1ba004acc73bec62656277cc8bcd374f8a6bd8bae176429680",
+      "representation": "SOURCE_SUMMARY"
+    }
+  }
+]

@@ -42,7 +42,13 @@ public class ClassificationClient {
             }
             return result;
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            return ClassificationResult.unavailable(ClassificationResult.Status.FAILED, "AI_HTTP_ERROR");
+            String code = "AI_HTTP_ERROR";
+            if (e.getStatusCode().value() == 401) code = "AI_SERVICE_AUTH_FAILED";
+            else try {
+                String internal = new com.fasterxml.jackson.databind.ObjectMapper().readTree(e.getResponseBodyAsString()).path("error").asText();
+                if (java.util.Set.of("PROVIDER_AUTH_FAILED", "PROVIDER_RATE_LIMITED", "PROVIDER_NOT_CONFIGURED", "GENERATION_NOT_CONFIGURED", "CLASSIFIER_NOT_READY").contains(internal)) code = internal;
+            } catch (Exception ignored) { /* Never expose raw provider responses. */ }
+            return ClassificationResult.unavailable(ClassificationResult.Status.FAILED, code);
         } catch (org.springframework.web.client.ResourceAccessException e) {
             return ClassificationResult.unavailable(ClassificationResult.Status.FAILED, "AI_UNAVAILABLE");
         } catch (org.springframework.web.client.RestClientException e) {

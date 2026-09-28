@@ -78,3 +78,33 @@ and [Embeddings](https://developers.openai.com/api/reference/resources/embedding
   The first embedding request failed with HTTP 401. No generated answers or live accuracy results
   were obtained, and local public-corpus embeddings remain unpopulated by this evaluation.
   The sanitized report is `live-attempt-issue25.json`. Re-run with a valid local API key.
+
+## Follow-up: real service abstention paths
+
+On 2026-09-11, real Vite → Spring → FastAPI → PostgreSQL paths passed on desktop and mobile.
+The dedicated PostgreSQL container used `finguard_ai_test` at port 55436; the backend ran at
+18081 with workers disabled, AI at 18000, and the same local service token on both.
+No HTTP route mocks were used in `frontend/tests/runtime.spec.ts`.
+
+After migrating the empty test DB and importing the official manifest, prepare fixture state:
+
+```sh
+TEST_DATABASE_URL=postgresql://USER:PASSWORD@localhost:55436/finguard_ai_test \
+  ai/.venv/bin/python ai/scripts/runtime_fixture.py
+cd frontend
+FG_RUNTIME_E2E=1 BACKEND_URL=http://127.0.0.1:18081 npx playwright test tests/runtime.spec.ts
+```
+
+The fixture deliberately marks mobile-payment guidance unavailable and changes one normalized
+reporting claim to `SYNTHETIC_CONFLICT_NOT_OFFICIAL`. It must never be run against a real corpus.
+The script refuses database names other than `finguard_ai_test`; dispose of the entire dedicated
+DB container after testing. These fixtures establish control behavior, not real institutional conflicts.
+The browser creates test users, submits questions, checks persisted reason codes and visible badges,
+then reloads, logs in again (tokens are memory-only), and reopens saved history.
+
+Results: two real-service browser tests passed; four mocked UI browser tests, five frontend unit
+tests and the frontend production build passed. Conflict and clarification badges previously both
+said “근거 부족”; they now distinguish the actual reason. Source display was checked with mocked
+answered output; actual generated-answer end-to-end validation is still pending credentials.
+At this follow-up the saved dotenv file had no OpenAI key, so the live preflight made zero calls.
+See `essay-audit.md` for claim-by-claim implementation limits and a revised essay draft.

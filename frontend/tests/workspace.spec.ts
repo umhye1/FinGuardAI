@@ -68,10 +68,20 @@ test("user analysis, evidence abstention, history and role navigation", async ({
         },
         {
           messageId: 3,
+          reasonCode: "CONFLICTING_EVIDENCE",
           sender: "AI",
           generationStatus: "INSUFFICIENT_EVIDENCE",
           message:
             "공식 자료의 대응 절차가 서로 달라 답변을 보류합니다. 담당 기관의 확인이 필요합니다.",
+          referencedChunks: [],
+        },
+        {
+          messageId: 4,
+          sender: "AI",
+          generationStatus: "INSUFFICIENT_EVIDENCE",
+          reasonCode: "NEEDS_CLARIFICATION",
+          message:
+            "계좌 송금, 의심 문자·앱, 휴대폰 소액결제 중 어떤 상황인가요? 피해 상황을 함께 알려주세요.",
           referencedChunks: [],
         },
       ];
@@ -110,6 +120,16 @@ test("user analysis, evidence abstention, history and role navigation", async ({
   await expect(
     page.getByText(
       "공식 자료의 대응 절차가 서로 달라 답변을 보류합니다. 담당 기관의 확인이 필요합니다.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText("근거 충돌 · 답변 보류", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("추가 정보 필요", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      "계좌 송금, 의심 문자·앱, 휴대폰 소액결제 중 어떤 상황인가요? 피해 상황을 함께 알려주세요.",
+      { exact: true },
     ),
   ).toBeVisible();
   await page.getByText("공식 안내 · 근거 문단").click();
