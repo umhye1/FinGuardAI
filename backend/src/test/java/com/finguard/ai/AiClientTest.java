@@ -71,19 +71,38 @@ class AiClientTest {
     @Test void conflictAndClarificationUseBackendOwnedMessages() {
         for (String reason : new String[]{"CONFLICTING_EVIDENCE", "NEEDS_CLARIFICATION"}) {
             response.set("{\"status\":\"INSUFFICIENT_EVIDENCE\",\"reasonCode\":\"" + reason
-                    + "\",\"policyVersion\":\"evidence-policy-v1\",\"answer\":\"unsafe\",\"clarificationQuestion\":\"unsafe question\"}");
+                    + "\",\"policyVersion\":\"evidence-policy-v3\",\"answer\":\"unsafe\",\"clarificationQuestion\":\"unsafe question\"}");
             var result = new RagClient(true, url, "test", 2000, new PrivacyMasker()).answer("question");
             assertThat(result.reasonCode()).isEqualTo(reason);
+            assertThat(result.policyVersion()).isEqualTo("evidence-policy-v3");
+            if ("NEEDS_CLARIFICATION".equals(reason)) assertThat(result.answer()).contains("신고 안내");
             assertThat(result.answer()).doesNotContain("unsafe");
             assertThat(result.chunkIds()).isEmpty();
         }
     }
     @Test void acceptsOnlySnapshotsMatchingEveryCitationId() {
         response.set("{\"status\":\"ANSWERED\",\"answer\":\"answer\",\"chunkIds\":[1],"
-                + "\"modelVersion\":\"m1\",\"promptVersion\":\"p1\",\"policyVersion\":\"evidence-policy-v1\","
+                + "\"modelVersion\":\"m1\",\"promptVersion\":\"p1\",\"policyVersion\":\"evidence-policy-v3\","
                 + "\"evidenceSnapshots\":{\"2\":{\"contentHash\":\"hash\",\"metadata\":{}}}}");
         assertThat(new RagClient(true, url, "test", 2000, new PrivacyMasker()).answer("question").status())
                 .isEqualTo(RagClient.Status.FAILED);
+    }
+
+    @Test void currentPolicyAnswerIsAcceptedAndOlderOrUnknownPoliciesAreRejected() {
+        String payload = """
+                {"status":"ANSWERED","answer":"test","chunkIds":[4],
+                 "modelVersion":"test-model","promptVersion":"test-prompt","policyVersion":"%s",
+                 "evidenceSnapshots":{"4":{"contentHash":"hash","metadata":{}}}}
+                """;
+        var client = new RagClient(true, url, "test", 2000, new PrivacyMasker());
+        response.set(payload.formatted("evidence-policy-v3"));
+        var accepted = client.answer("보이스피싱 통합신고센터 안내");
+        assertThat(accepted.status()).isEqualTo(RagClient.Status.ANSWERED);
+        assertThat(accepted.policyVersion()).isEqualTo("evidence-policy-v3");
+        for (String version : new String[]{"evidence-policy-v1", "evidence-policy-v2", "unknown"}) {
+            response.set(payload.formatted(version));
+            assertThat(client.answer("question").status()).isEqualTo(RagClient.Status.FAILED);
+        }
     }
 
 }

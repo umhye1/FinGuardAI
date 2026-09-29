@@ -56,10 +56,11 @@ class CorpusRepository:
                 FROM document_chunks c JOIN documents d USING(document_id)
                 LEFT JOIN document_embeddings e ON e.chunk_id = c.chunk_id AND e.embedding_model = %s
                 WHERE d.status = 'COMPLETED' AND d.evidence_metadata IS NOT NULL
-                  AND (d.evidence_metadata::jsonb->'topics') ?| %s::text[]
+                  AND ((d.evidence_metadata::jsonb->'topics') ?| %s::text[]
+                       OR (%s AND d.evidence_metadata::jsonb->>'family' = 'integrated-reporting'))
                 ORDER BY c.chunk_id LIMIT 201
             """,
-                (json.dumps(vector) if vector else None, model, sorted(topics)),
+                (json.dumps(vector) if vector else None, model, sorted(topics - {"reporting"}), "reporting" in topics),
             ).fetchall()
         scores = {}
         for r in rows:
