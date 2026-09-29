@@ -1,0 +1,681 @@
+{
+  "metrics": {
+    "phishingNotFlagged": {
+      "count": 4,
+      "denominator": 10,
+      "rate": 0.4
+    },
+    "phishingPassed": {
+      "count": 0,
+      "denominator": 10,
+      "rate": 0.0
+    },
+    "preventionFlagged": {
+      "count": 0,
+      "denominator": 10,
+      "rate": 0.0
+    },
+    "normalFlagged": {
+      "count": 0,
+      "denominator": 10,
+      "rate": 0.0
+    },
+    "abstention": {
+      "count": 14,
+      "denominator": 30,
+      "rate": 0.4666666666666667
+    },
+    "coverage": {
+      "count": 16,
+      "denominator": 30,
+      "rate": 0.5333333333333333
+    },
+    "forcedPhishingMiss": {
+      "count": 1,
+      "denominator": 10,
+      "rate": 0.1
+    },
+    "forcedPreventionFalsePositive": {
+      "count": 0,
+      "denominator": 10,
+      "rate": 0.0
+    }
+  },
+  "latencyMs": {
+    "p50": 133.06308398023248,
+    "p95": 148.88701499439773,
+    "note": "one local CPU inference per row; excludes training/startup/network"
+  },
+  "cases": [
+    {
+      "id": "test-court-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.24370525777339935,
+        "PHISHING": 0.512800931930542,
+        "PREVENTION": 0.24349386990070343
+      }
+    },
+    {
+      "id": "test-court-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.19491593539714813,
+        "PHISHING": 0.13534975051879883,
+        "PREVENTION": 0.6697343587875366
+      }
+    },
+    {
+      "id": "test-court-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.4696798622608185,
+        "PHISHING": 0.28507283329963684,
+        "PREVENTION": 0.24524739384651184
+      }
+    },
+    {
+      "id": "test-tax-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.22544363141059875,
+        "PHISHING": 0.5218319296836853,
+        "PREVENTION": 0.25272437930107117
+      }
+    },
+    {
+      "id": "test-tax-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.14595794677734375,
+        "PHISHING": 0.16403020918369293,
+        "PREVENTION": 0.6900118589401245
+      }
+    },
+    {
+      "id": "test-tax-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.4893234670162201,
+        "PHISHING": 0.2799680829048157,
+        "PREVENTION": 0.230708509683609
+      }
+    },
+    {
+      "id": "test-employment-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.28606516122817993,
+        "PHISHING": 0.48714083433151245,
+        "PREVENTION": 0.22679395973682404
+      }
+    },
+    {
+      "id": "test-employment-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.18708209693431854,
+        "PHISHING": 0.1764375865459442,
+        "PREVENTION": 0.6364803314208984
+      }
+    },
+    {
+      "id": "test-employment-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.4905773103237152,
+        "PHISHING": 0.21776391565799713,
+        "PREVENTION": 0.29165875911712646
+      }
+    },
+    {
+      "id": "test-benefit-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.22693628072738647,
+        "PHISHING": 0.5609347224235535,
+        "PREVENTION": 0.21212905645370483
+      }
+    },
+    {
+      "id": "test-benefit-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.16216643154621124,
+        "PHISHING": 0.1161038801074028,
+        "PREVENTION": 0.7217296957969666
+      }
+    },
+    {
+      "id": "test-benefit-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.48538678884506226,
+        "PHISHING": 0.1478884071111679,
+        "PREVENTION": 0.36672478914260864
+      }
+    },
+    {
+      "id": "test-traffic-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.17662174999713898,
+        "PHISHING": 0.5275565981864929,
+        "PREVENTION": 0.2958216071128845
+      }
+    },
+    {
+      "id": "test-traffic-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.11532408744096756,
+        "PHISHING": 0.18651540577411652,
+        "PREVENTION": 0.6981605291366577
+      }
+    },
+    {
+      "id": "test-traffic-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.42507341504096985,
+        "PHISHING": 0.25444889068603516,
+        "PREVENTION": 0.320477694272995
+      }
+    },
+    {
+      "id": "test-wedding-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.2470063865184784,
+        "PHISHING": 0.5331524014472961,
+        "PREVENTION": 0.21984121203422546
+      }
+    },
+    {
+      "id": "test-wedding-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.21051068603992462,
+        "PHISHING": 0.2461419403553009,
+        "PREVENTION": 0.5433474183082581
+      }
+    },
+    {
+      "id": "test-wedding-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.49590569734573364,
+        "PHISHING": 0.2642386555671692,
+        "PREVENTION": 0.23985563218593597
+      }
+    },
+    {
+      "id": "test-tuition-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "FLAG",
+      "probabilities": {
+        "NORMAL": 0.2199782282114029,
+        "PHISHING": 0.563163697719574,
+        "PREVENTION": 0.21685802936553955
+      }
+    },
+    {
+      "id": "test-tuition-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.1636543720960617,
+        "PHISHING": 0.15324385464191437,
+        "PREVENTION": 0.6831017732620239
+      }
+    },
+    {
+      "id": "test-tuition-normal",
+      "expected": "NORMAL",
+      "label": "PHISHING",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.31036102771759033,
+        "PHISHING": 0.4616398513317108,
+        "PREVENTION": 0.22799918055534363
+      }
+    },
+    {
+      "id": "test-delivery-warning-attack-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.24769258499145508,
+        "PHISHING": 0.4652789533138275,
+        "PREVENTION": 0.2870284914970398
+      }
+    },
+    {
+      "id": "test-delivery-warning-attack-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.16377095878124237,
+        "PHISHING": 0.1441040337085724,
+        "PREVENTION": 0.6921249628067017
+      }
+    },
+    {
+      "id": "test-delivery-warning-attack-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.4660528302192688,
+        "PHISHING": 0.25798308849334717,
+        "PREVENTION": 0.27596408128738403
+      }
+    },
+    {
+      "id": "test-quotation-attack-phishing",
+      "expected": "PHISHING",
+      "label": "PREVENTION",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.18794062733650208,
+        "PHISHING": 0.4010259211063385,
+        "PREVENTION": 0.41103339195251465
+      }
+    },
+    {
+      "id": "test-quotation-attack-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.18726439774036407,
+        "PHISHING": 0.14227363467216492,
+        "PREVENTION": 0.6704619526863098
+      }
+    },
+    {
+      "id": "test-quotation-attack-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.41456711292266846,
+        "PHISHING": 0.3550793528556824,
+        "PREVENTION": 0.23035351932048798
+      }
+    },
+    {
+      "id": "test-negation-attack-phishing",
+      "expected": "PHISHING",
+      "label": "PHISHING",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.23356150090694427,
+        "PHISHING": 0.45344576239585876,
+        "PREVENTION": 0.31299275159835815
+      }
+    },
+    {
+      "id": "test-negation-attack-prevention",
+      "expected": "PREVENTION",
+      "label": "PREVENTION",
+      "decision": "PASS",
+      "probabilities": {
+        "NORMAL": 0.19295158982276917,
+        "PHISHING": 0.15668638050556183,
+        "PREVENTION": 0.650361955165863
+      }
+    },
+    {
+      "id": "test-negation-attack-normal",
+      "expected": "NORMAL",
+      "label": "NORMAL",
+      "decision": "ABSTAIN",
+      "probabilities": {
+        "NORMAL": 0.48262470960617065,
+        "PHISHING": 0.19673097133636475,
+        "PREVENTION": 0.320644348859787
+      }
+    }
+  ],
+  "confusionLabels": [
+    "NORMAL",
+    "PHISHING",
+    "PREVENTION",
+    "OOV"
+  ],
+  "forcedConfusionMatrix": [
+    [
+      9,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      9,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      10,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "provenance": {
+    "kind": "previously-exposed-synthetic-regression",
+    "benchmark": {
+      "version": "context-v1",
+      "synthetic": true,
+      "independentLabelReview": false,
+      "sha256": {
+        "train": "af125805ca9fb9893101ca2d37531132a1924000aa0f154b045166a83fbb985c",
+        "dev": "ae0f6fd8fd937c31335d618a1601944fefbb98943b77989c48e119bdc475257e",
+        "test": "2d819cae3be1ce658c9ebd02400ff36cfd9b9d61c8249ee8b8f5abaafa4f8916"
+      }
+    }
+  },
+  "model": "klue/bert-base",
+  "revision": "77c8b3d707df785034b4e50f2da5d37be5f0f546",
+  "weightsSha256": "ee6ac9d3a2ca202a4d4d2894eb8722faff08922b83258ef8496d53cd6f279426",
+  "threshold": 0.5,
+  "truncatedSamples": 0,
+  "paidCalls": 0,
+  "selectedEpoch": 1,
+  "trainingSeconds": 16.974101457977667,
+  "baselineComparison": {
+    "rule_snapshot": {
+      "metrics": {
+        "phishingNotFlagged": {
+          "count": 3,
+          "denominator": 10,
+          "rate": 0.3
+        },
+        "phishingPassed": {
+          "count": 3,
+          "denominator": 10,
+          "rate": 0.3
+        },
+        "preventionFlagged": {
+          "count": 6,
+          "denominator": 10,
+          "rate": 0.6
+        },
+        "normalFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "abstention": {
+          "count": 0,
+          "denominator": 30,
+          "rate": 0.0
+        },
+        "coverage": {
+          "count": 30,
+          "denominator": 30,
+          "rate": 1.0
+        },
+        "forcedPhishingMiss": {
+          "count": 3,
+          "denominator": 10,
+          "rate": 0.3
+        },
+        "forcedPreventionFalsePositive": {
+          "count": 6,
+          "denominator": 10,
+          "rate": 0.6
+        }
+      },
+      "latencyMs": {
+        "p50": 0.17887551803141832,
+        "p95": 0.3252044843975454,
+        "note": "one local CPU inference per row; excludes training/startup/network"
+      }
+    },
+    "binary_current_algorithm": {
+      "metrics": {
+        "phishingNotFlagged": {
+          "count": 10,
+          "denominator": 10,
+          "rate": 1.0
+        },
+        "phishingPassed": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "preventionFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "normalFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "abstention": {
+          "count": 30,
+          "denominator": 30,
+          "rate": 1.0
+        },
+        "coverage": {
+          "count": 0,
+          "denominator": 30,
+          "rate": 0.0
+        },
+        "forcedPhishingMiss": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "forcedPreventionFalsePositive": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        }
+      },
+      "latencyMs": {
+        "p50": 0.8340415661223233,
+        "p95": 1.0981248109601436,
+        "note": "one local CPU inference per row; excludes training/startup/network"
+      }
+    },
+    "intent_char_ablation": {
+      "metrics": {
+        "phishingNotFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "phishingPassed": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "preventionFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "normalFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "abstention": {
+          "count": 1,
+          "denominator": 30,
+          "rate": 0.03333333333333333
+        },
+        "coverage": {
+          "count": 29,
+          "denominator": 30,
+          "rate": 0.9666666666666667
+        },
+        "forcedPhishingMiss": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "forcedPreventionFalsePositive": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        }
+      },
+      "latencyMs": {
+        "p50": 1.06570846401155,
+        "p95": 1.5057103068102147,
+        "note": "one local CPU inference per row; excludes training/startup/network"
+      }
+    },
+    "intent_char_word_candidate": {
+      "metrics": {
+        "phishingNotFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "phishingPassed": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "preventionFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "normalFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "abstention": {
+          "count": 0,
+          "denominator": 30,
+          "rate": 0.0
+        },
+        "coverage": {
+          "count": 30,
+          "denominator": 30,
+          "rate": 1.0
+        },
+        "forcedPhishingMiss": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "forcedPreventionFalsePositive": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        }
+      },
+      "latencyMs": {
+        "p50": 1.9750414649024606,
+        "p95": 2.3986526182852685,
+        "note": "one local CPU inference per row; excludes training/startup/network"
+      }
+    },
+    "binary_threshold_control": {
+      "metrics": {
+        "phishingNotFlagged": {
+          "count": 1,
+          "denominator": 10,
+          "rate": 0.1
+        },
+        "phishingPassed": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "preventionFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "normalFlagged": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "abstention": {
+          "count": 1,
+          "denominator": 30,
+          "rate": 0.03333333333333333
+        },
+        "coverage": {
+          "count": 29,
+          "denominator": 30,
+          "rate": 0.9666666666666667
+        },
+        "forcedPhishingMiss": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        },
+        "forcedPreventionFalsePositive": {
+          "count": 0,
+          "denominator": 10,
+          "rate": 0.0
+        }
+      },
+      "latencyMs": {
+        "p50": 0.9070830419659615,
+        "p95": 1.2777041527442632,
+        "note": "one local CPU inference per row; excludes training/startup/network"
+      }
+    }
+  }
+}

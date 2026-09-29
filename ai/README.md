@@ -132,3 +132,10 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 규칙·기존 이진 방식·3분류 n-gram 후보의 비교 도구를 추가했다. 운영 API 모델을 자동으로
 바꾸지 않는다. 유료 API 없이 실행하는 명령, 실제 측정 결과, RAG 근거 검수 방법과
 한계는 [실험 기록](../docs/evidence/ai-performance-v1/README.md)을 참고한다.
+
+## 한국어 encoder 미세조정
+
+`python -m finguard_ai.encoder_experiment`는 별도 선택 의존성으로 동작하는 로컬 BERT
+학습·재로드·평가·외부 검수 데이터 등록 CLI다. 운영 모델을 자동 교체하지 않는다.
+실제 1 epoch 실행 결과와 기존 분류기 비교, 독립 데이터 준비 방법은
+[encoder 실험 기록](../docs/evidence/encoder-v1/README.md)을 참고한다.
