@@ -125,3 +125,10 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 ## 남은 범위
 
 소규모 공식 출처 요약 corpus와 정책 테스트를 추가했다. 등록·출처·검토 기준·한계는 [근거 정책 구현 기록](../docs/evidence/implementation.md)을 따른다. 실사용 분류 데이터·평가, 실제 생성 모델의 의미적 품질 평가, 검토 corpus 확대, 인덱싱 관리자 작업 API, OCR은 후속 작업이다. Kafka·멀티에이전트는 추가하지 않았다.
+
+## 문맥 분류·RAG 성능 실험 (2026-09)
+
+3개 의도(PHISHING / PREVENTION / NORMAL)의 고정 합성 데이터와 dev 전용 선택,
+규칙·기존 이진 방식·3분류 n-gram 후보의 비교 도구를 추가했다. 운영 API 모델을 자동으로
+바꾸지 않는다. 유료 API 없이 실행하는 명령, 실제 측정 결과, RAG 근거 검수 방법과
+한계는 [실험 기록](../docs/evidence/ai-performance-v1/README.md)을 참고한다.

@@ -1,0 +1,46 @@
+name: AI offline evaluation
+
+on:
+  pull_request:
+    paths: ['ai/**', '.github/workflows/ai-offline-evaluation.yml']
+  push:
+    branches: ['main', 'dev', 'feat/**', 'fix/**']
+    paths: ['ai/**', '.github/workflows/ai-offline-evaluation.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ai
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: ai/requirements.lock
+      - run: python -m pip install -c requirements.lock -e '.[test]'
+      - run: python -m ruff check .
+      - run: python -m pytest -m 'not integration' -q
+      - name: Compare classifiers without provider calls
+        run: >-
+          python -m finguard_ai.context_benchmark --data data/benchmarks/context-v1
+          --output-dir .artifacts/context-v1 --allow-synthetic
+      - name: Evaluate retrieval without generation
+        run: >-
+          python -m finguard_ai.rag_benchmark --data data/benchmarks/rag-v1
+          --corpus data/official --output-dir .artifacts/rag-v1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: offline-ai-reports
+          path: |
+            ai/.artifacts/context-v1/classification-report.json
+            ai/.artifacts/rag-v1/rag-report.json
+            ai/.artifacts/rag-v1/faithfulness-review.template.json
+          retention-days: 14

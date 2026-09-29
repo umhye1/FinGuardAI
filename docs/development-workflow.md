@@ -10,19 +10,40 @@
 
 `server`는 별도 영구 브랜치보다 `infra/` 디렉터리로 관리한다.
 
-## 브랜치
+## 브랜치와 이슈·PR 규칙
 
-```text
-main                         검증된 릴리스
-  └─ dev                     통합 기준
-       ├─ codex/ai-classification-rag
-       ├─ feat/frontend-analysis      (후속 예시)
-       └─ feat/backend-ocr-inputs     (후속 예시)
+1. GitHub 이슈를 먼저 생성한다. 제목은 `[Feat] 작업명` 또는 `[Fix] 수정명`으로 쓴다.
+   문제·목표, 구현 범위, 완료 조건을 본문에 작성한다.
+2. 실제 생성된 이슈 번호로 `feat/#번호-짧은-설명` 또는 `fix/#번호-짧은-설명`을 만든다.
+   설명 없는 `feat/#번호`, `fix/#번호`도 허용한다. `codex/`, `feature/`, `bugfix/`는 사용하지 않는다.
+3. 기능 단위로 커밋한다. `feat(ai): 문맥 분류 평가 추가 (#29)`처럼 영문 타입/scope,
+   한글 설명, 마지막 이슈 번호를 사용한다. fix/docs/test/refactor/chore/ci 등 커밋 타입은
+   허용하지만 **작업 브랜치 접두사는 feat/fix 두 종류**다. 문서·CI 개선은 feat에 포함한다.
+4. 적절한 테스트와 diff 확인을 마친 뒤 push한다.
+5. PR 제목은 `[#29] AI 문맥 분류 및 RAG 평가 체계 구축` 형식으로 쓴다.
+   본문은 `.github/PULL_REQUEST_TEMPLATE.md`의 개요·변경 사항·검증·관련 이슈·리뷰 메모를
+   채우고, 관련 이슈에 동일 번호의 `close #29`를 단독 줄로 작성한다.
+6. 자동 merge하지 않고 리뷰 후 사용자가 병합한다. 과거 완료 이슈 번호를 새 작업에 재사용하지 않는다.
+
+현재 원격 통합 브랜치는 main이다. dev를 실제 운영하기 전까지 최신 origin/main에서 분기하고
+main으로 PR한다. dev를 도입하면 기능 PR의 base를 dev로 통일하고 dev → main 릴리스만
+`[Release] 설명` 제목의 예외를 허용한다. 디렉터리별 frontend/backend/ai 영구 브랜치는 두지 않는다.
+
+```bash
+git fetch origin
+git switch -c 'feat/#29-ai-performance-evaluation' origin/main
+# 기능별 구현·검증·커밋
+git push -u origin 'feat/#29-ai-performance-evaluation'
 ```
 
-Git에서 위 구조는 디렉터리 트리가 아니라 분기·통합 흐름이다. frontend/backend/ai를 영구 분리하면 API 변경이 서로 반영되지 않으므로 기능별 브랜치를 dev에서 만들고 완료 후 dev로 PR한다. 하나의 기능에 여러 폴더 변경을 함께 포함해도 된다.
+번호는 예시이며 새 작업은 먼저 이슈를 발급받는다. `#`이 있는 브랜치명은 항상 따옴표로 감싼다.
+브랜치 변경 전 `git status`, `git branch -vv`, 원격 PR과 stash를 확인해 사용자의 변경을 보존한다.
 
-이번 작업은 원격 main의 백엔드 PR #18 병합 커밋에서 로컬 main을 fast-forward하고, 같은 지점에 로컬 dev를 만든 후 AI 기능 브랜치를 분기했다. dev와 AI 브랜치는 자동 push하지 않았다. PR 생성 전 사용자가 dev와 기능 브랜치를 push해야 한다. 기능 PR의 base는 dev, 통합 검증 후 릴리스 PR의 base는 main으로 선택한다.
+`Branch convention / validate`는 PR 브랜치 형식, 제목·close 번호 일치, 템플릿 항목,
+실제 이슈 존재와 Feat/Fix 제목을 검사한다. PR 제목/본문 수정에도 재실행한다.
+Actions는 잘못된 브랜치의 **push 자체를 막지 못한다**. 실패한 PR의 병합을 강제 차단하려면
+GitHub main/dev ruleset에서 이 검사를 required status check로 설정해야 한다.
+이 저장소 변경만으로 서버 ruleset이 설정됐다고 간주하지 않는다.
 
 ## 새 로컬 통합 환경
 
@@ -58,6 +79,8 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 
 기존 DB에 적용할 때는 docs/backend/backend-upgrade.md의 baseline 절차를 먼저 확인한다. V6부터 PostgreSQL 서버의 pgvector 확장과 확장 생성 권한이 추가로 필요하다. 기존 로컬 application.properties와 사용자 DB는 이번 작업에서 변경하지 않았다.
 
-## 프론트엔드 브랜치
+## 프론트엔드 작업에도 같은 규칙 적용
 
-AI PR이 main에 병합된 뒤 로컬 main/dev를 해당 커밋으로 fast-forward하고 `codex/frontend-workspace`를 분기했다. Git 브랜치는 목록에서 나란히 표시되며 계층 폴더가 아니다. dev를 원격에 먼저 push한 뒤 프론트 PR의 base로 선택한다. main에 직접 통합하는 경우에는 base를 main으로 선택해도 된다. 실행·인증 정책·테스트는 frontend/README.md를 참고한다.
+프론트엔드·백엔드·AI 모두 이슈 번호 기반 기능 브랜치를 사용한다. Git 브랜치 목록은
+디렉터리 트리가 아니며 브랜치명의 suffix로 작업 영역을 구분한다. 현재 PR base는 main으로
+통일한다. 실행·인증 정책·테스트는 `frontend/README.md`를 참고한다.
