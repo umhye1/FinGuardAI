@@ -15,8 +15,9 @@ def test_locked_splits():
     assert [len(splits[s]) for s in ("train", "dev", "test")] == [36, 18, 30]
 
 
-@pytest.mark.parametrize("mutation,error", [("group", "Group leakage"), ("text", "Duplicate"),
-                                          ("checksum", "checksum")])
+@pytest.mark.parametrize(
+    "mutation,error", [("group", "Group leakage"), ("text", "Duplicate"), ("checksum", "checksum")]
+)
 def test_contaminated_splits_rejected(tmp_path, mutation, error):
     shutil.copytree(DATA, tmp_path / "data")
     root = tmp_path / "data"

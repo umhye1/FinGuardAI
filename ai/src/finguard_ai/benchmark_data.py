@@ -10,7 +10,8 @@ LABELS = ("NORMAL", "PHISHING", "PREVENTION")
 
 def normalized(text):
     return "".join(
-        c for c in unicodedata.normalize("NFKC", text).casefold()
+        c
+        for c in unicodedata.normalize("NFKC", text).casefold()
         if not c.isspace() and unicodedata.category(c) != "Cf"
     )
 
@@ -32,8 +33,10 @@ def load_splits(directory):
         if {r.get("label") for r in rows} != set(LABELS):
             raise ValueError("Every split must contain all three labels")
         for row in rows:
-            if any(not isinstance(row.get(k), str) or not row[k].strip()
-                   for k in ("id", "group", "text", "source", "sourceType")):
+            if any(
+                not isinstance(row.get(k), str) or not row[k].strip()
+                for k in ("id", "group", "text", "source", "sourceType")
+            ):
                 raise ValueError("Missing dataset provenance or text")
             if row["sourceType"] not in {"synthetic", "licensed", "consented"}:
                 raise ValueError("Unknown provenance")
