@@ -23,7 +23,7 @@ public class ChatAnswerWriter {
     private final ObjectMapper mapper;
     private boolean validEvidence(com.finguard.document.domain.DocumentChunk chunk, RagClient.Result result) {
         try {
-            if (!"evidence-policy-v1".equals(result.policyVersion()) || result.evidenceSnapshots() == null) return false;
+            if (!RagClient.EVIDENCE_POLICY_VERSION.equals(result.policyVersion()) || result.evidenceSnapshots() == null) return false;
             var snapshot = result.evidenceSnapshots().get(String.valueOf(chunk.getChunkId()));
             if (snapshot == null || chunk.getDocument().getEvidenceMetadata() == null) return false;
             var metadata = mapper.readTree(chunk.getDocument().getEvidenceMetadata());

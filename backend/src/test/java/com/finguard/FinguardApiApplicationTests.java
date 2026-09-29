@@ -167,12 +167,18 @@ class FinguardApiApplicationTests {
         jdbc.update("UPDATE documents SET evidence_metadata = ?, source_url = ? WHERE document_id = ?",
                 metadata.toString(), metadata.path("source_url").asText(), chunks.findById(chunkId).orElseThrow().getDocument().getDocumentId());
         var result = new com.finguard.ai.service.RagClient.Result(com.finguard.ai.service.RagClient.Status.ANSWERED,
-                "answer", List.of(chunkId), "model1", "prompt1", null, "evidence-policy-v1",
+                "answer", List.of(chunkId), "model1", "prompt1", null, "evidence-policy-v3",
                 Map.of(String.valueOf(chunkId), new com.finguard.ai.service.RagClient.CitationSnapshot(hash, metadata)));
         var accepted = chatWriter.save(admin.getEmail(), session.getSessionId(), "question", result);
         assertThat(accepted.getAiMessage().getReferencedChunks()).hasSize(1);
         assertThat(accepted.getAiMessage().getReferencedChunks().getFirst().getContentPreview()).isEqualTo("official guide");
-        assertThat(accepted.getAiMessage().getPolicyVersion()).isEqualTo("evidence-policy-v1");
+        assertThat(accepted.getAiMessage().getPolicyVersion()).isEqualTo("evidence-policy-v3");
+        for (String version : new String[]{"evidence-policy-v1", "evidence-policy-v2", "unknown"}) {
+            var outdated = new com.finguard.ai.service.RagClient.Result(result.status(), result.answer(),
+                    result.chunkIds(), result.modelVersion(), result.promptVersion(), null, version, result.evidenceSnapshots());
+            assertThat(chatWriter.save(admin.getEmail(), session.getSessionId(), "question", outdated)
+                    .getAiMessage().getGenerationStatus()).isEqualTo("FAILED");
+        }
         jdbc.update("UPDATE document_chunks SET content = 'changed after generation' WHERE chunk_id = ?", chunkId);
         var changed = chatWriter.save(admin.getEmail(), session.getSessionId(), "question", result);
         assertThat(changed.getAiMessage().getGenerationStatus()).isEqualTo("FAILED");
