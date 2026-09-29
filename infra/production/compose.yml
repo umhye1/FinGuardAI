@@ -1,0 +1,141 @@
+name: finguard-prod
+
+x-defaults: &defaults
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+services:
+  frontend:
+    <<: *defaults
+    image: finguard/frontend:${RELEASE_SHA:?Set RELEASE_SHA}
+    build: ../../frontend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      backend:
+        condition: service_healthy
+  postgres:
+    <<: *defaults
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: finguard
+      POSTGRES_USER: finguard
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finguard -d finguard"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redis:
+    <<: *defaults
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  backend:
+    <<: *defaults
+    image: finguard/backend:${RELEASE_SHA:?Set RELEASE_SHA}
+    build: ../../backend
+    environment:
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60.0"
+      MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/finguard
+      SPRING_DATASOURCE_USERNAME: finguard
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_OPEN_IN_VIEW: "false"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "false"
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      JWT_ACCESS_TOKEN_EXPIRATION: "3600000"
+      JWT_REFRESH_TOKEN_EXPIRATION: "1209600000"
+      FILE_UPLOAD_DIR: /app/uploads
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 10MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 11MB
+      AI_ENABLED: "true"
+      AI_SERVER_URL: http://ai:8000
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Set AI_SERVICE_TOKEN}
+      AI_TIMEOUT_MS: "5000"
+      AI_RAG_TIMEOUT_MS: "15000"
+    mem_limit: 1g
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 18
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+  ai:
+    <<: *defaults
+    image: finguard/ai:${RELEASE_SHA:?Set RELEASE_SHA}
+    build: ../../ai
+    mem_limit: 768m
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 18
+    environment:
+      AI_SERVICE_TOKEN: ${AI_SERVICE_TOKEN:?Set AI_SERVICE_TOKEN}
+      AI_DATABASE_HOST: postgres
+      AI_DATABASE_NAME: finguard
+      AI_DATABASE_USER: finguard
+      AI_DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      AI_CLASSIFIER_MODE: local
+      AI_CLASSIFIER_PATH: /models/classifier.json
+      AI_ALLOW_DEMO_MODEL: "false"
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      AI_OPENAI_API_KEY: ${AI_OPENAI_API_KEY:-}
+      AI_GEMINI_API_KEY: ${AI_GEMINI_API_KEY:-}
+      AI_GENERATION_MODEL: ${AI_GENERATION_MODEL:-}
+      AI_EMBEDDING_MODEL: ${AI_EMBEDDING_MODEL:-gemini-embedding-001}
+    volumes:
+      - ${MODEL_DIR:?Set absolute MODEL_DIR}:/models:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+  proxy:
+    <<: *defaults
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?Set public DNS hostname}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+      ai:
+        condition: service_healthy
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres_data:
+  redis_data:
+  uploads:
