@@ -3,6 +3,7 @@
 import hashlib
 import json
 import re
+import unicodedata
 from dataclasses import dataclass
 from datetime import date
 from typing import Literal
@@ -12,10 +13,10 @@ from pydantic import Field, model_validator
 
 from finguard_ai.schemas import StrictModel
 
-POLICY_VERSION = "evidence-policy-v1"
+POLICY_VERSION = "evidence-policy-v2"
 RULES = {
     "transfer": {
-        "terms": ["송금", "이체", "보낸", "보냈", "입금", "지급정지"],
+        "terms": ["송금", "이체", "입금", "지급정지"],
         "families": {"transfer-response"},
     },
     "smishing": {
@@ -72,8 +73,43 @@ class EvidenceMetadata(StrictModel):
         return self
 
 
+def normalized_question(question):
+    return "".join(
+        c for c in unicodedata.normalize("NFKC", question).lower() if unicodedata.category(c) != "Cf"
+    )
+
+
 def topics_for(question):
-    return {topic for topic, rule in RULES.items() if any(term in question.lower() for term in rule["terms"])}
+    """Bounded lexical routing for evidence retrieval, not fraud or entailment classification.
+
+    Ambiguous sending requires an adjacent money object. Context combinations never
+    cross sentence boundaries. Explicit transfer/payment words retain prior behavior.
+    """
+    question = normalized_question(question)
+    compact = re.sub(r"\s+", "", question)
+    topics = {
+        topic
+        for topic, rule in RULES.items()
+        if any(re.sub(r"\s+", "", term) in compact for term in rule["terms"])
+    }
+    for sentence in re.split(r"[.!?。！？;\n]+", question):
+        if re.search(
+            r"(?:돈|금액|현금|보증금|수수료|대금)(?:을|를)?\s*"
+            r"(?:(?:먼저|이미|전부|모두|바로|즉시|다)\s*){0,2}(?:보내|보낸|보냈)",
+            sentence,
+        ):
+            topics.add("transfer")
+        if re.search(r"청첩장|초대장|부고장", sentence) and re.search(
+            r"수상|의심|사칭|열어도|눌러도|설치|악성|피싱", sentence
+        ):
+            topics.add("smishing")
+        if (
+            re.search(r"통신사|통신요금|휴대폰|휴대전화|핸드폰", sentence)
+            and re.search(r"청구|요금|과금", sentence)
+            and re.search(r"콘텐츠|컨텐츠|소액|결제", sentence)
+        ):
+            topics.add("mobile_payment")
+    return topics
 
 
 def terms_for(question):
