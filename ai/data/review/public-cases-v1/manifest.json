@@ -1,0 +1,10 @@
+{
+  "version": "public-review-v1",
+  "datasetAuthor": "Codex-assisted source curation",
+  "createdOn": "2026-09-29",
+  "status": "PENDING_HUMAN_REVIEW",
+  "files": {
+    "sources.json": "e7dc5d2472f091dc9d141cec430bdbff8a2b469551197047ea47824898177971",
+    "candidates.jsonl": "1cbd5ed9a0f056eb6d914105355f82fb5e8593989bc1e3b4c4d1a1d4f5b5cb2d"
+  }
+}

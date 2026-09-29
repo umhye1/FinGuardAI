@@ -1,0 +1,33 @@
+[
+  {
+    "id": "joint-2025-09",
+    "title": "정부, 추석 명절 연휴기간 스미싱 등 전기통신금융사기 피해 예방·대응 수칙 안내",
+    "publisher": "과학기술정보통신부·방송통신위원회·금융위원회·경찰청·KISA·금융감독원",
+    "url": "https://www.kmcc.go.kr/download.do?fileSeq=61948",
+    "publishedOn": "2025-09-28",
+    "accessedOn": "2026-09-29",
+    "license": "KOGL-1",
+    "licenseEvidence": "PDF 6쪽 하단 공공누리 출처표시 마크를 렌더링하여 확인. 본문 텍스트만 사용, 이미지 제외.",
+    "sha256": "16c913ee405bd7bbece7a4c4df773decc1f31970d6ba6cc1d18d77af787a8051",
+    "status": "ELIGIBLE"
+  },
+  {
+    "id": "msit-2021-09",
+    "title": "추석 앞두고 택배·국민지원금 사칭한 스미싱 조심하세요",
+    "publisher": "과학기술정보통신부 / 정책브리핑",
+    "url": "https://www.korea.kr/news/policyNewsView.do?newsId=148893067",
+    "publishedOn": "2021-09-13",
+    "accessedOn": "2026-09-29",
+    "license": "KOGL-1",
+    "licenseEvidence": "본문 하단: 텍스트에 한하여 공공누리 제1유형(출처표시). 사진 제외.",
+    "status": "ELIGIBLE"
+  },
+  {
+    "id": "fsc-2020-excluded",
+    "title": "추석 연휴 스미싱 주의…이런 문자는 바로 삭제하세요",
+    "url": "https://www.korea.kr/multi/visualNewsView.do?newsId=148878233",
+    "license": "KOGL-4",
+    "status": "LINK_ONLY",
+    "reason": "변경금지·비상업 조건. 이번 재배포/변형 후보에 미포함."
+  }
+]
