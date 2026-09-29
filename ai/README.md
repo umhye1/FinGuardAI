@@ -139,3 +139,10 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 학습·재로드·평가·외부 검수 데이터 등록 CLI다. 운영 모델을 자동 교체하지 않는다.
 실제 1 epoch 실행 결과와 기존 분류기 비교, 독립 데이터 준비 방법은
 [encoder 실험 기록](../docs/evidence/encoder-v1/README.md)을 참고한다.
+
+### 공개 사례 검수 대기
+
+[public-cases-v1](data/review/public-cases-v1/README.md)에 공식 텍스트 19건의 출처와
+미검수 후보를 관리한다. `python -m finguard_ai.curation prepare`로 모델 예측 없이
+오프라인 검수 화면을 만들고, `finalize`는 검수·개인정보·출처·기존 평가와의 중복 및 클래스
+누락을 검사한다. 현재 정상 대화가 없으므로 완성된 외부 평가셋이 아니다. 유료 API 호출 없음.
