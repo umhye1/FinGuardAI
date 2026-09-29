@@ -20,12 +20,14 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def load_splits(directory):
+def load_splits(directory, *, split_names=("train", "dev", "test")):
+    if not split_names or any(s not in {"train", "dev", "test"} for s in split_names):
+        raise ValueError("Unknown or empty split selection")
     directory = Path(directory)
     manifest = json.loads((directory / "manifest.json").read_text())
     seen_ids, seen_texts, group_splits = set(), set(), {}
     splits = {}
-    for split in ("train", "dev", "test"):
+    for split in split_names:
         path = directory / f"{split}.jsonl"
         if digest(path) != manifest["sha256"][split]:
             raise ValueError("Dataset checksum changed; create a reviewed benchmark version")
