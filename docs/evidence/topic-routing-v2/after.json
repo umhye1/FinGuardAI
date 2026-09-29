@@ -1,0 +1,312 @@
+{
+  "policyVersion": "evidence-policy-v2",
+  "fixtureSha256": "27629a6106d5cf93c8530b18271c1f9e93ad63caf5efb6debdd4a779aa0c24b9",
+  "scope": "synthetic regression cases authored from observed failures; not independent generalization evaluation",
+  "paidCalls": 0,
+  "correct": 28,
+  "count": 28,
+  "cases": [
+    {
+      "id": "observed-invitation",
+      "question": "지인이 보낸 모바일 청첩장이 수상해요. 열어도 될까요?",
+      "expectedTopics": [
+        "smishing"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing"
+      ],
+      "correct": true
+    },
+    {
+      "id": "observed-billing",
+      "question": "통신사 청구서에 제가 구매하지 않은 콘텐츠 비용이 있어요.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "money-sent",
+      "question": "돈을 보냈는데 상대가 잠적했어요.",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "money-send",
+      "question": "요구한 금액을 먼저 보내라고 하는데 사기인가요?",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "cash-forward",
+      "question": "현금을 이미 보낸 뒤 연락이 끊겼어요.",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "deposit-sent",
+      "question": "보증금을 보냈어요. 돌려받으려면 어떻게 하나요?",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "transfer-explicit",
+      "question": "사기 계좌로 이체했어요.",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "stop-explicit",
+      "question": "송금 피해 지급정지를 요청하려면?",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "documents",
+      "question": "서류를 보냈는데 확인했나요?",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "photo-money",
+      "question": "돈은 있는데 사진을 보냈어요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "sentence-boundary",
+      "question": "돈을 모았어요. 사진을 보냈어요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "plain-invitation",
+      "question": "친구가 보낸 청첩장에 예식 시간이 적혀 있어요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "unsafe-invitation",
+      "question": "모바일 초대장이 수상한데 열어도 되나요?",
+      "expectedTopics": [
+        "smishing"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing"
+      ],
+      "correct": true
+    },
+    {
+      "id": "invitation-install",
+      "question": "청첩장을 확인하려니 설치하라고 해요.",
+      "expectedTopics": [
+        "smishing"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing"
+      ],
+      "correct": true
+    },
+    {
+      "id": "plain-invite-word",
+      "question": "오늘 초대장을 인쇄하러 갑니다.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "content-bill",
+      "question": "휴대폰 청구서에 모르는 콘텐츠 이용료가 붙었어요.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "carrier-charge",
+      "question": "통신사에서 모르는 결제 비용을 청구했어요.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "normal-plan",
+      "question": "통신사 요금제를 변경하고 싶어요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "ordinary-content",
+      "question": "콘텐츠 제작 비용을 어떻게 계산하나요?",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "unrelated-billing",
+      "question": "통신사에 전화했어요. 영상 콘텐츠 비용을 계산해요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "existing-mobile",
+      "question": "휴대폰 소액결제를 취소하고 싶어요.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "spaces",
+      "question": "소액 결제 피해를 접수하려고 합니다.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "unicode",
+      "question": "소액​결제 피해가 있어요.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "correct": true
+    },
+    {
+      "id": "combined",
+      "question": "수상한 모바일 청첩장을 열고 돈을 보냈어요.",
+      "expectedTopics": [
+        "smishing",
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing",
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "combined-existing",
+      "question": "스미싱 문자로 계좌 이체를 했어요.",
+      "expectedTopics": [
+        "smishing",
+        "transfer"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing",
+        "transfer"
+      ],
+      "correct": true
+    },
+    {
+      "id": "combined-payment",
+      "question": "문자를 누른 후 휴대폰 소액 결제 피해가 생겼어요.",
+      "expectedTopics": [
+        "smishing",
+        "mobile_payment"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment",
+        "smishing"
+      ],
+      "correct": true
+    },
+    {
+      "id": "ambiguous",
+      "question": "피해를 봤어요. 어떻게 하죠?",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    },
+    {
+      "id": "normal-greeting",
+      "question": "내일 만나요. 사진은 이미 보냈어요.",
+      "expectedTopics": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "correct": true
+    }
+  ]
+}
