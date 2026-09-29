@@ -1,0 +1,27 @@
+name: 기능 구현
+description: 새로운 기능 또는 성능 개선을 제안합니다.
+title: "[Feat] "
+labels: [feature]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제와 목표
+      description: 해결하려는 사용자 문제와 완료 후의 동작을 작성합니다.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 구현 범위
+      description: API, 데이터, 화면, 운영 변경을 구체적으로 작성합니다.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 완료 조건
+      description: 재현 가능한 검증 조건을 체크리스트로 작성합니다.
+      value: "- [ ] \n- [ ] "
+    validations:
+      required: true

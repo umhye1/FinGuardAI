@@ -1,0 +1,29 @@
+name: Branch convention
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - run: node --test .github/scripts/convention.test.cjs
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { validate } = require('./.github/scripts/convention.cjs');
+            const result = validate(context.payload.pull_request);
+            if (result.release) return;
+            const { data: issue } = await github.rest.issues.get({
+              ...context.repo, issue_number: result.number
+            });
+            if (issue.pull_request) throw Error('PR 번호가 아닌 실제 이슈 번호가 필요합니다.');
+            const prefix = result.type === 'feat' ? '[Feat] ' : '[Fix] ';
+            if (!issue.title.startsWith(prefix)) throw Error(`이슈 제목은 ${prefix}로 시작해야 합니다.`);
