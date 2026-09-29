@@ -147,3 +147,22 @@ def test_official_import_hybrid_policy_and_idempotency(repository):
         )
     rows = repository.policy_candidates({"transfer"}, [1.0] + [0.0] * 767, "offline-test", "송금", 0.6)
     assert select_evidence("송금", rows, today=date(2026, 9, 11)).reason == "CONFLICTING_EVIDENCE"
+
+
+def test_reporting_intent_uses_existing_family_without_relabeling(repository):
+    from datetime import date
+
+    from finguard_ai.corpus import import_corpus, load_manifest
+    from finguard_ai.evidence import select_evidence
+
+    records = list(load_manifest(Path(__file__).parents[1] / 'data/official/manifest.json'))
+    import_corpus(repository.pool, records)
+    question = '보이스피싱 통합신고센터 안내'
+    rows = repository.policy_candidates({'reporting'}, None, 'test-model', question, 0.6)
+    assert len(rows) == 1
+    assert rows[0].metadata['family'] == 'integrated-reporting'
+    assert rows[0].metadata['topics'] == ['transfer']
+    assert select_evidence(question, rows, today=date(2026, 9, 29)).reason is None
+    both = repository.policy_candidates({'reporting', 'transfer'}, None, 'test-model', question, 0.6)
+    assert {c.metadata['family'] for c in both} == {'integrated-reporting', 'transfer-response'}
+    assert repository.policy_candidates(set(), None, 'test-model', '세금 신고', 0.6) == []

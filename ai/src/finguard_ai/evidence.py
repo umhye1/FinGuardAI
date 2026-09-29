@@ -13,7 +13,7 @@ from pydantic import Field, model_validator
 
 from finguard_ai.schemas import StrictModel
 
-POLICY_VERSION = "evidence-policy-v2"
+POLICY_VERSION = "evidence-policy-v3"
 RULES = {
     "transfer": {
         "terms": ["송금", "이체", "입금", "지급정지"],
@@ -27,8 +27,14 @@ RULES = {
         "terms": ["소액결제", "휴대폰 결제", "모바일 결제", "통신요금"],
         "families": {"mobile-payment-response"},
     },
+    # A query intent, not a new reviewed metadata topic. The existing reporting
+    # family is reviewed under transfer; never mutate its metadata in memory/DB.
+    "reporting": {
+        "terms": ["보이스피싱", "금융사기", "통합신고", "신고", "접수"],
+        "families": {"integrated-reporting"},
+    },
 }
-CLARIFICATION = "계좌 송금, 의심 문자·앱, 휴대폰 소액결제 중 어떤 상황인가요? 피해 상황을 함께 알려주세요."
+CLARIFICATION = "계좌 송금, 의심 문자·앱, 휴대폰 소액결제, 보이스피싱 신고 안내 중 어떤 상황인가요? 질문을 조금 더 구체적으로 알려주세요."
 
 
 class Claim(StrictModel):
@@ -90,9 +96,17 @@ def topics_for(question):
     topics = {
         topic
         for topic, rule in RULES.items()
-        if any(re.sub(r"\s+", "", term) in compact for term in rule["terms"])
+        if topic != "reporting" and any(re.sub(r"\s+", "", term) in compact for term in rule["terms"])
     }
     for sentence in re.split(r"[.!?。！？;\n]+", question):
+        sentence_compact = re.sub(r"\s+", "", sentence)
+        # Bare 신고/112/통합신고센터 does not identify the financial-scam domain.
+        # Keep this sentence-local so tax/loss reporting in another sentence
+        # cannot acquire a financial-scam purpose from a preceding sentence.
+        if re.search(r"보이스피싱|금융사기", sentence_compact) and re.search(
+            r"신고|접수", sentence_compact
+        ) and not re.search(r"(?:세금|소득세|부가세|분실|주차|혼인|출생)(?:을|를|의)?(?:신고|접수)", sentence_compact):
+            topics.add("reporting")
         if re.search(
             r"(?:돈|금액|현금|보증금|수수료|대금)(?:을|를)?\s*"
             r"(?:(?:먼저|이미|전부|모두|바로|즉시|다)\s*){0,2}(?:보내|보낸|보냈)",
@@ -123,6 +137,12 @@ def fingerprint(metadata):
     return hashlib.sha256(json.dumps(metadata, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
 
+def relevant_metadata(metadata, intents):
+    return bool((intents - {"reporting"}).intersection(metadata.get("topics", []))) or (
+        "reporting" in intents and metadata.get("family") == "integrated-reporting"
+    )
+
+
 @dataclass
 class Decision:
     chunks: list
@@ -137,18 +157,18 @@ def select_evidence(question, chunks, limit=5, today=None):
         return Decision([], "NEEDS_CLARIFICATION", CLARIFICATION)
     if len(chunks) > 200:
         return Decision([], "CORPUS_LIMIT")
+    # Claims retain their reviewed topic; routing intent is deliberately separate.
+    claim_topics = (topics - {"reporting"}) | ({"transfer"} if "reporting" in topics else set())
     eligible = []
     for chunk in chunks:
         try:
             m = EvidenceMetadata.model_validate(chunk.metadata)
         except ValueError:
             # A malformed newer record must not make an older procedure look current.
-            if chunk.metadata.get("kind") == "OFFICIAL_GUIDANCE" and topics.intersection(
-                chunk.metadata.get("topics", [])
-            ):
+            if chunk.metadata.get("kind") == "OFFICIAL_GUIDANCE" and relevant_metadata(chunk.metadata, topics):
                 return Decision([], "MISSING_REQUIRED_DOCUMENT")
             continue
-        if m.kind != "OFFICIAL_GUIDANCE" or not topics.intersection(m.topics) or m.published_at > today:
+        if m.kind != "OFFICIAL_GUIDANCE" or not relevant_metadata(chunk.metadata, topics) or m.published_at > today:
             continue
         eligible.append((chunk, m))
     # A newer publication supersedes only the same publisher/family/applicability.
@@ -164,21 +184,23 @@ def select_evidence(question, chunks, limit=5, today=None):
     ):
         return Decision([], "MISSING_REQUIRED_DOCUMENT")
     if any(
-        not set(m.topics).intersection(topics).issubset({claim.topic for claim in m.claims})
+        not set(m.topics).intersection(claim_topics).issubset({claim.topic for claim in m.claims})
+        or ("reporting" in topics and m.family == "integrated-reporting"
+            and not any(claim.topic == "transfer" and claim.key == "report_channel" for claim in m.claims))
         for _, m in active
     ):
         return Decision([], "UNREVIEWED_PROCEDURE")
     claims = {}
     for _, m in active:
         for claim in m.claims:
-            if claim.topic in topics:
+            if claim.topic in claim_topics:
                 claims.setdefault((m.applicability, claim.topic, claim.key), set()).add(claim.value)
     if any(len(values) > 1 for values in claims.values()):
         return Decision([], "CONFLICTING_EVIDENCE")
     required = set.union(*(RULES[t]["families"] for t in topics))
     if not required.issubset({m.family for _, m in active}):
         return Decision([], "MISSING_REQUIRED_DOCUMENT")
-    if any(not any(claim.topic == topic for _, m in active for claim in m.claims) for topic in topics):
+    if any(not any(claim.topic == topic for _, m in active for claim in m.claims) for topic in claim_topics):
         return Decision([], "UNREVIEWED_PROCEDURE")
     # Reserve a slot per required family, then fill by reciprocal rank fusion.
     ordered = sorted(
