@@ -95,3 +95,6 @@ ai/.coverage
 
 # Locally retained official source snapshots (publish summaries and provenance only)
 ai/data/official/raw/
+
+# Optional local encoder research environment
+.venv-encoder/

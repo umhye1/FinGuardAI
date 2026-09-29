@@ -1,0 +1,5 @@
+# Optional local research environment. Production FastAPI does not import these.
+# Use a separate venv when dependency constraints differ from your serving environment.
+torch==2.6.0
+transformers==4.49.0
+safetensors==0.8.0
