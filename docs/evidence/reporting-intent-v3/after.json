@@ -1,0 +1,413 @@
+{
+  "policyVersion": "evidence-policy-v3",
+  "asOf": "2026-09-29",
+  "fixtureSha256": "9c3088de342c4e3577687c618ea1cf167941cd254bef54e45b87e635f3a2207f",
+  "manifestSha256": "54290d2902adf6ba6db0a78510ac6ee4345539872f50bef5f79182c3df3d0fcd",
+  "scope": "repository-authored synthetic regression; not independent generalization or answer quality",
+  "paidCalls": 0,
+  "correct": 24,
+  "count": 24,
+  "cases": [
+    {
+      "id": "observed-center",
+      "question": "보이스피싱 통합신고 센터가 무엇인가요?",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "center-name",
+      "question": "전기통신금융사기 통합신고대응센터 안내를 알려주세요.",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "voice-report",
+      "question": "보이스피싱 신고는 어디서 하나요?",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "fraud-report",
+      "question": "금융사기를 신고하려면 어디에 연락하나요?",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "voice-contact",
+      "question": "보이스피싱 접수 창구를 알고 싶어요.",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "spacing",
+      "question": "보이스 피싱 통합 신고 센터가 궁금해요.",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "invisible",
+      "question": "보이스​피싱 통합신고센터 안내",
+      "expectedTopics": [
+        "reporting"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "report-transfer",
+      "question": "보이스피싱 통합신고센터와 송금 피해 대응을 알려주세요.",
+      "expectedTopics": [
+        "reporting",
+        "transfer"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting",
+        "transfer-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting",
+        "transfer"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting",
+        "transfer-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "report-smishing",
+      "question": "스미싱 문자 피해와 보이스피싱 통합신고센터를 알려주세요.",
+      "expectedTopics": [
+        "reporting",
+        "smishing"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting",
+        "smishing-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "reporting",
+        "smishing"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting",
+        "smishing-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "report-payment",
+      "question": "휴대폰 소액결제 피해와 보이스피싱 통합신고센터를 알려주세요.",
+      "expectedTopics": [
+        "reporting",
+        "mobile_payment"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting",
+        "mobile-payment-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment",
+        "reporting"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting",
+        "mobile-payment-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "report-all",
+      "question": "보이스피싱 통합신고센터, 문자 링크와 송금 및 소액결제 피해 대응을 알려주세요.",
+      "expectedTopics": [
+        "reporting",
+        "smishing",
+        "transfer",
+        "mobile_payment"
+      ],
+      "expectedFamilies": [
+        "integrated-reporting",
+        "mobile-payment-response",
+        "smishing-response",
+        "transfer-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment",
+        "reporting",
+        "smishing",
+        "transfer"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting",
+        "mobile-payment-response",
+        "smishing-response",
+        "transfer-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "standalone-name",
+      "question": "통합신고센터가 어떤 곳인가요?",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "tax",
+      "question": "소득 세금 신고는 어디로 하나요?",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "loss",
+      "question": "지갑 분실 신고를 하려고 해요.",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "vague",
+      "question": "신고하고 싶어요.",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "police",
+      "question": "112에 신고하려면 어떻게 하나요?",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "generic-fraud",
+      "question": "사기를 신고하려면 어디로 가나요?",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "cross-sentence",
+      "question": "보이스피싱 예방 교육을 들었어요. 세금 신고 방법이 궁금해요.",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "ordinary-center",
+      "question": "불법주차 통합신고센터를 찾고 있어요.",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "plain-voice",
+      "question": "보이스피싱이 무엇인가요?",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    },
+    {
+      "id": "smishing-existing",
+      "question": "스미싱 문자 신고 방법은 무엇인가요?",
+      "expectedTopics": [
+        "smishing"
+      ],
+      "expectedFamilies": [
+        "smishing-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "smishing"
+      ],
+      "selectedFamilies": [
+        "smishing-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "transfer-existing",
+      "question": "사기로 돈을 보냈어요. 신고하려고 해요.",
+      "expectedTopics": [
+        "transfer"
+      ],
+      "expectedFamilies": [
+        "transfer-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "transfer"
+      ],
+      "selectedFamilies": [
+        "integrated-reporting",
+        "transfer-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "payment-existing",
+      "question": "휴대폰 소액결제를 신고하려고 합니다.",
+      "expectedTopics": [
+        "mobile_payment"
+      ],
+      "expectedFamilies": [
+        "mobile-payment-response"
+      ],
+      "sourceType": "synthetic",
+      "actualTopics": [
+        "mobile_payment"
+      ],
+      "selectedFamilies": [
+        "mobile-payment-response"
+      ],
+      "reason": null,
+      "correct": true
+    },
+    {
+      "id": "standalone-phone",
+      "question": "112라는 숫자가 적혀 있어요.",
+      "expectedTopics": [],
+      "expectedFamilies": [],
+      "sourceType": "synthetic",
+      "actualTopics": [],
+      "selectedFamilies": [],
+      "reason": "NEEDS_CLARIFICATION",
+      "correct": true
+    }
+  ]
+}

@@ -146,3 +146,11 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 미검수 후보를 관리한다. `python -m finguard_ai.curation prepare`로 모델 예측 없이
 오프라인 검수 화면을 만들고, `finalize`는 검수·개인정보·출처·기존 평가와의 중복 및 클래스
 누락을 검사한다. 현재 정상 대화가 없으므로 완성된 외부 평가셋이 아니다. 유료 API 호출 없음.
+
+### 통합신고 안내 라우팅과 정책 v3
+
+보이스피싱/금융사기 신고 안내 의도를 피해 주제와 분리하고 기존 `integrated-reporting`
+문서계열을 조회한다. 검토 corpus를 다시 라벨링하지 않는다. 신고와 송금 등 복합 질문은
+각 필수 근거를 모두 요구한다. AI와 Spring은 `evidence-policy-v3` 계약으로 함께 갱신해야 한다.
+변경 이유·전후 회귀·격리 DB 검증·한계는
+[신고 의도 검증 기록](../docs/evidence/reporting-intent-v3/README.md)을 참고한다.

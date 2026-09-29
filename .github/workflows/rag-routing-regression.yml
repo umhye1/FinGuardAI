@@ -22,8 +22,11 @@ jobs:
       - run: python -m ruff check .
       - run: python -m pytest -m 'not integration' -q
       - run: python scripts/topic_routing_report.py --output .artifacts/topic-routing-v2.json
+      - run: python scripts/reporting_intent_report.py --output .artifacts/reporting-intent-v3.json
       - uses: actions/upload-artifact@v4
         with:
           name: topic-routing-regressions
-          path: ai/.artifacts/topic-routing-v2.json
+          path: |
+            ai/.artifacts/topic-routing-v2.json
+            ai/.artifacts/reporting-intent-v3.json
           retention-days: 14
