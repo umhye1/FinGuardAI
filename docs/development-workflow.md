@@ -79,6 +79,8 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 
 기존 DB에 적용할 때는 docs/backend/backend-upgrade.md의 baseline 절차를 먼저 확인한다. V6부터 PostgreSQL 서버의 pgvector 확장과 확장 생성 권한이 추가로 필요하다. 기존 로컬 application.properties와 사용자 DB는 이번 작업에서 변경하지 않았다.
 
-## 프론트엔드 브랜치
+## 프론트엔드 작업에도 같은 규칙 적용
 
-AI PR이 main에 병합된 뒤 로컬 main/dev를 해당 커밋으로 fast-forward하고 당시 프론트 작업 브랜치를 분기했다. Git 브랜치는 목록에서 나란히 표시되며 계층 폴더가 아니다. dev를 원격에 먼저 push한 뒤 프론트 PR의 base로 선택한다. main에 직접 통합하는 경우에는 base를 main으로 선택해도 된다. 실행·인증 정책·테스트는 frontend/README.md를 참고한다.
+프론트엔드·백엔드·AI 모두 이슈 번호 기반 기능 브랜치를 사용한다. Git 브랜치 목록은
+디렉터리 트리가 아니며 브랜치명의 suffix로 작업 영역을 구분한다. 현재 PR base는 main으로
+통일한다. 실행·인증 정책·테스트는 `frontend/README.md`를 참고한다.
