@@ -1,0 +1,10 @@
+{
+  "version": "rag-v1",
+  "asOf": "2026-09-29",
+  "questionsSha256": "ed6d07286febf45bf448b15008132f796a3c264863dd5e3e4e1965334def4cea",
+  "corpusManifests": {
+    "manifest.json": "54290d2902adf6ba6db0a78510ac6ee4345539872f50bef5f79182c3df3d0fcd",
+    "manifest-2026-09.json": "6d8399a76ea9e6ab1025db5d42c31728e17b994da362e47b4902a82803316d3f"
+  },
+  "independentLabelReview": false
+}
