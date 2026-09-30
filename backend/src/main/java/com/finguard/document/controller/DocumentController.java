@@ -5,8 +5,10 @@ import com.finguard.document.dto.response.DocumentChunkSearchResponse;
 import com.finguard.document.dto.response.DocumentCreateResponse;
 import com.finguard.document.dto.response.DocumentDetailResponse;
 import com.finguard.document.dto.response.DocumentListResponse;
+import com.finguard.document.dto.response.DocumentIndexStatusResponse;
 import com.finguard.document.service.DocumentChunkService;
 import com.finguard.document.service.DocumentService;
+import com.finguard.document.service.DocumentIndexStatusService;
 import com.finguard.global.response.CommonResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,15 @@ public class DocumentController {
 
     private final DocumentService documentService;
     private final DocumentChunkService documentChunkService;
+
+    private final DocumentIndexStatusService indexStatus;
+
+    @GetMapping("/{documentId}/index-status")
+    public ResponseEntity<CommonResponse<DocumentIndexStatusResponse>> indexStatus(
+            @PathVariable Long documentId, @RequestParam String model) {
+        return ResponseEntity.ok(CommonResponse.success(200, "임베딩 상태를 조회했습니다.",
+                indexStatus.get(documentId, model)));
+    }
 
     // 1. 문서 업로드
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

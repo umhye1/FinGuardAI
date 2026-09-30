@@ -77,7 +77,8 @@ function Documents() {
       useLoad<Document[]>("/admin/documents"),
     [actionError, setError] = useState(""),
     [busy, setBusy] = useState(false),
-    [notice, setNotice] = useState("");
+    [notice, setNotice] = useState(""),
+    [inspection, setInspection] = useState<Document | null>(null);
   async function action(path: string, method: string) {
     setBusy(true);
     setError("");
@@ -88,6 +89,7 @@ function Documents() {
           ? "처리를 접수했습니다. 새로고침으로 처리 상태를 확인하세요."
           : "문서를 삭제했습니다.",
       );
+      setInspection(null);
       reload();
     } catch (e) {
       setError((e as Error).message);
@@ -152,7 +154,7 @@ function Documents() {
           <button disabled={busy}>문서 업로드</button>
         </form>
       </section>
-      <section className="panel table-wrap">
+      <section className="panel">
         <div className="row">
           <h2>등록된 문서</h2>
           <button
@@ -164,75 +166,214 @@ function Documents() {
           </button>
         </div>
         <p className="muted">
-          완료는 텍스트 추출 상태입니다. RAG 검색에 사용하려면 별도 임베딩
-          인덱싱이 필요합니다.
+          완료는 텍스트 추출 상태입니다. 벡터 검색에 사용하려면 별도 임베딩
+          인덱싱이 필요합니다. 임베딩 상태 확인으로 모델별 누락·내용 변경을
+          조회할 수 있습니다.
         </p>
         {loading ? (
           <Loading />
         ) : !data?.length ? (
           <Empty />
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>문서명</th>
-                <th>출처</th>
-                <th>처리 상태</th>
-                <th>문단 수</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((d) => (
-                <tr key={d.documentId}>
-                  <td>{d.title}</td>
-                  <td>{d.source}</td>
-                  <td>
-                    {(
-                      {
-                        UPLOADED: "접수",
-                        PROCESSING: "처리 중",
-                        COMPLETED: "추출 완료",
-                        FAILED: "실패",
-                      } as Record<string, string>
-                    )[d.status] || d.status}
-                  </td>
-                  <td>{d.chunkCount}</td>
-                  <td>
-                    {d.status === "FAILED" && (
+          <div className="table-wrap">
+            <table className="documents-table">
+              <thead>
+                <tr>
+                  <th>문서명</th>
+                  <th>출처</th>
+                  <th>처리 상태</th>
+                  <th>문단 수</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.map((d) => (
+                  <tr key={d.documentId}>
+                    <td>{d.title}</td>
+                    <td>{d.source}</td>
+                    <td>
+                      {(
+                        {
+                          UPLOADED: "접수",
+                          PROCESSING: "처리 중",
+                          COMPLETED: "추출 완료",
+                          FAILED: "실패",
+                        } as Record<string, string>
+                      )[d.status] || d.status}
+                    </td>
+                    <td>{d.chunkCount}</td>
+                    <td>
                       <button
                         className="text-button"
-                        disabled={busy}
-                        onClick={() =>
-                          action(
-                            `/admin/documents/${d.documentId}/processing-jobs`,
-                            "POST",
-                          )
-                        }
+                        onClick={() => setInspection(d)}
                       >
-                        재처리
+                        임베딩 상태 확인
                       </button>
-                    )}
-                    <button
-                      className="text-button danger"
-                      disabled={busy}
-                      onClick={() => {
-                        if (confirm("문서와 연결된 근거 데이터를 삭제할까요?"))
-                          void action(
-                            `/admin/documents/${d.documentId}`,
-                            "DELETE",
-                          );
-                      }}
-                    >
-                      삭제
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      {d.status === "FAILED" && (
+                        <button
+                          className="text-button"
+                          disabled={busy}
+                          onClick={() =>
+                            action(
+                              `/admin/documents/${d.documentId}/processing-jobs`,
+                              "POST",
+                            )
+                          }
+                        >
+                          재처리
+                        </button>
+                      )}
+                      <button
+                        className="text-button danger"
+                        disabled={busy}
+                        onClick={() => {
+                          if (
+                            confirm("문서와 연결된 근거 데이터를 삭제할까요?")
+                          )
+                            void action(
+                              `/admin/documents/${d.documentId}`,
+                              "DELETE",
+                            );
+                        }}
+                      >
+                        삭제
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
+      {inspection && (
+        <IndexStatus
+          key={inspection.documentId}
+          document={inspection}
+          onClose={() => setInspection(null)}
+        />
+      )}
+    </>
+  );
+}
+type IndexStatusResult = {
+  documentId: number;
+  documentStatus: string;
+  embeddingModel: string;
+  status: string;
+  totalChunks: number;
+  currentChunks: number;
+  missingChunks: number;
+  staleChunks: number;
+};
+function IndexStatus({
+  document,
+  onClose,
+}: {
+  document: Document;
+  onClose: () => void;
+}) {
+  const [model, setModel] = useState("text-embedding-3-small");
+  const [selected, setSelected] = useState("");
+  return (
+    <section className="panel" aria-label="문서 임베딩 상태">
+      <div className="row">
+        <h2>{document.title} · 임베딩 상태</h2>
+        <button className="secondary" onClick={onClose}>
+          닫기
+        </button>
+      </div>
+      <p>
+        조회할 모델명을 입력하세요. 기본 입력값이 현재 AI 서버 설정을 의미하지는
+        않습니다.
+      </p>
+      <form
+        className="form-grid"
+        onSubmit={(event) => {
+          event.preventDefault();
+          setSelected(model.trim());
+        }}
+      >
+        <label>
+          임베딩 모델
+          <input
+            value={model}
+            onChange={(event) => {
+              setModel(event.target.value);
+              setSelected("");
+            }}
+            required
+            maxLength={100}
+            pattern="[a-zA-Z0-9._\-]+"
+          />
+        </label>
+        <button>상태 조회</button>
+      </form>
+      {selected && (
+        <IndexStatusResultView
+          key={selected}
+          documentId={document.documentId}
+          model={selected}
+        />
+      )}
+      <p className="muted">
+        조회는 임베딩을 생성하지 않습니다. 인덱싱 완료는 문서의 공식성·최신성
+        검토나 답변 가능 여부를 보장하지 않습니다.
+      </p>
+    </section>
+  );
+}
+function IndexStatusResultView({
+  documentId,
+  model,
+}: {
+  documentId: number;
+  model: string;
+}) {
+  const { data, error, loading, reload } = useLoad<IndexStatusResult>(
+    `/admin/documents/${documentId}/index-status?model=${encodeURIComponent(model)}`,
+  );
+  const labels: Record<string, string> = {
+    TEXT_NOT_READY: "텍스트 추출 미완료",
+    NO_CHUNKS: "문단 없음",
+    NOT_INDEXED: "미인덱싱",
+    PARTIAL: "일부 문단 누락",
+    STALE: "본문과 임베딩 불일치",
+    INDEXED: "인덱싱 완료",
+  };
+  return (
+    <>
+      <Notice error={error} />
+      <button className="secondary" disabled={loading} onClick={reload}>
+        임베딩 상태 새로고침
+      </button>
+      {loading ? (
+        <Loading />
+      ) : (
+        !error &&
+        data && (
+          <div role="status">
+            <h3>{labels[data.status] || "알 수 없는 상태"}</h3>
+            <p>조회 모델: {data.embeddingModel}</p>
+            <p>
+              전체 {data.totalChunks} · 본문 일치 {data.currentChunks} · 누락{" "}
+              {data.missingChunks} · 내용 불일치 {data.staleChunks}
+            </p>
+            {data.status === "TEXT_NOT_READY" ? (
+              <p>텍스트 추출 상태를 먼저 확인하세요.</p>
+            ) : data.status === "NO_CHUNKS" ? (
+              <p>문서 추출 결과를 확인하세요.</p>
+            ) : (
+              data.status !== "INDEXED" && (
+                <p>
+                  모델명이 맞는지 확인한 뒤, 누락 또는 변경된 문서의 재인덱싱을
+                  운영자에게 요청하세요.
+                </p>
+              )
+            )}
+          </div>
+        )
+      )}
     </>
   );
 }
