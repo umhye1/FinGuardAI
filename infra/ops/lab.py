@@ -188,7 +188,10 @@ def metadata():
         'docker': output('docker', 'version', '--format', '{{.Server.Version}}'),
         'compose': output('docker', 'compose', 'version', '--short'),
         'dockerResources': output('docker', 'info', '--format', '{{.NCPU}} CPUs / {{.MemTotal}} bytes'),
-        'images': json.loads(compose('images', '--format', 'json', capture=True).stdout),
+        'images': [],
+        'sourceSha256': {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest()
+                         for p in (ROOT / 'infra/compose.yml', ROOT / 'infra/compose.ops.yml',
+                                   Path(__file__), ROOT / 'ai/data/examples/synthetic-train.jsonl')},
         'modelSha256': hashlib.sha256((STATE / 'models/classifier.json').read_bytes()).hexdigest(),
         'conditions': 'prebuilt images, existing volumes, sequential warm runs, 1s poll, 8s HTTP timeout; no RAG/provider calls',
     }
@@ -241,6 +244,9 @@ def experiment(runs, timeout):
             wait_for(backend_ready, timeout)
             wait_for(seed, timeout)
         wait_for(smoke, timeout)
+        report['environment']['images'] = json.loads(
+            compose('images', '--format', 'json', capture=True).stdout)
+        save(result_path, report)
         for number in range(1, runs + 1):
             row = {'run': number, 'status': 'RUNNING'}
             report['runs'].append(row)
