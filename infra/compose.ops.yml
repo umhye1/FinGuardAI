@@ -1,0 +1,12 @@
+# Only use with compose.yml via infra/ops/lab.py; isolated, unpaid local experiment.
+services:
+  ai:
+    environment:
+      AI_CLASSIFIER_MODE: local
+      AI_ALLOW_DEMO_MODEL: "true"
+      AI_PROVIDER: openai
+      AI_OPENAI_API_KEY: ""
+      AI_GEMINI_API_KEY: ""
+      AI_GENERATION_MODEL: ""
+    volumes:
+      - ./.ops-lab/models:/models:ro

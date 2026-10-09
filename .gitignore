@@ -98,3 +98,6 @@ ai/data/official/raw/
 
 # Optional local encoder research environment
 .venv-encoder/
+
+# Isolated Compose operations experiment: secrets and raw local diagnostics
+infra/.ops-lab/
