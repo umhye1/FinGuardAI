@@ -154,3 +154,6 @@ TEST_DATABASE_URL='postgresql://test:TEST_PASSWORD@localhost:TEST_PORT/finguard_
 각 필수 근거를 모두 요구한다. AI와 Spring은 `evidence-policy-v3` 계약으로 함께 갱신해야 한다.
 변경 이유·전후 회귀·격리 DB 검증·한계는
 [신고 의도 검증 기록](../docs/evidence/reporting-intent-v3/README.md)을 참고한다.
+
+관리자 화면에서 모델별 저장 임베딩 상태를 조회할 수 있다. 현재 본문의 SHA-256과 저장 해시를 비교하며,
+실제 인덱싱은 기존 CLI를 사용한다. [관리자 임베딩 상태 API](../docs/backend/document-index-status.md).

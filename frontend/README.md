@@ -60,3 +60,7 @@ docker compose --env-file infra/.env -f infra/compose.yml up --build -d
 프론트는 http://127.0.0.1:3000 에서 제공됩니다.
 Nginx가 `/api`를 backend:8080으로 프록시하고 클라이언트 경로 새로고침을 지원합니다.
 이 구성은 로컬 개발용입니다. 외부 배포 시 TLS와 도메인 설정이 추가로 필요합니다.
+
+관리자 공식 문서 목록에서 `임베딩 상태 확인`을 누르면 선택한 모델 기준의 본문 일치·누락·내용 불일치
+문단 수를 조회할 수 있습니다. 모델명은 실제 AI 설정과 맞춰 입력하세요. 이 조회는 유료 API를 호출하거나
+임베딩을 만들지 않습니다. [API와 상태 의미](../docs/backend/document-index-status.md)를 참고하세요.

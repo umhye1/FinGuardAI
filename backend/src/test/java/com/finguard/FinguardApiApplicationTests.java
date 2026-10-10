@@ -193,4 +193,73 @@ class FinguardApiApplicationTests {
         assertThat(winners).isEqualTo(1);
         sessions.revoke(sid);
     }
+
+    @Autowired com.finguard.document.service.DocumentIndexStatusService indexStatus;
+
+    private long indexFixture() {
+        return jdbc.queryForObject("""
+            INSERT INTO documents(title,source,file_path,status,created_at,original_file_name,stored_file_name,chunk_count,uploaded_by)
+            VALUES ('index fixture','test','unused','COMPLETED',now(),'test.txt','test.txt',999,?) RETURNING document_id
+            """, Long.class, admin.getUserId());
+    }
+    private long addIndexChunk(long doc, int number, String text) {
+        return jdbc.queryForObject("INSERT INTO document_chunks(document_id,chunk_index,content,created_at) VALUES (?,?,?,now()) RETURNING chunk_id",
+                Long.class, doc, number, text);
+    }
+    private void addVector(long chunk, String model) {
+        String vector = "[1," + "0,".repeat(766) + "0]";
+        jdbc.update("""
+            INSERT INTO document_embeddings(chunk_id,embedding_model,content_hash,embedding)
+            SELECT chunk_id,?,encode(sha256(convert_to(content,'UTF8')),'hex'),?::vector
+            FROM document_chunks WHERE chunk_id=?
+            """, model, vector, chunk);
+    }
+    @Test void indexCoverageUsesActualChunksSelectedModelAndCurrentUtf8Content() {
+        long doc = indexFixture();
+        assertThat(indexStatus.get(doc, "model-a").status().name()).isEqualTo("NO_CHUNKS");
+        long first = addIndexChunk(doc, 0, "금융사기 신고 안내\n첫 문단");
+        long second = addIndexChunk(doc, 1, "두 번째 문단");
+        addVector(first, "model-b");
+        addVector(second, "model-b");
+        var missing = indexStatus.get(doc, "model-a");
+        assertThat(missing.status().name()).isEqualTo("NOT_INDEXED");
+        assertThat(missing.totalChunks()).isEqualTo(2); // cached count is deliberately wrong
+        assertThat(missing.missingChunks()).isEqualTo(2);
+        addVector(first, "model-a");
+        assertThat(indexStatus.get(doc, "model-a").status().name()).isEqualTo("PARTIAL");
+        addVector(second, "model-a");
+        assertThat(indexStatus.get(doc, "model-a").status().name()).isEqualTo("INDEXED");
+        jdbc.update("UPDATE document_chunks SET content='변경된 문단' WHERE chunk_id=?", first);
+        jdbc.update("DELETE FROM document_embeddings WHERE chunk_id=? AND embedding_model='model-a'", second);
+        var stale = indexStatus.get(doc, "model-a");
+        assertThat(stale.status().name()).isEqualTo("STALE");
+        assertThat(stale.staleChunks()).isEqualTo(1);
+        assertThat(stale.missingChunks()).isEqualTo(1);
+        assertThat(stale.currentChunks()).isZero();
+        assertThat(stale.currentChunks() + stale.staleChunks() + stale.missingChunks()).isEqualTo(stale.totalChunks());
+        jdbc.update("UPDATE documents SET status='PROCESSING' WHERE document_id=?", doc);
+        assertThat(indexStatus.get(doc, "model-a").status().name()).isEqualTo("TEXT_NOT_READY");
+        // Diagnostics never repairs or changes stored vectors.
+        assertThat(jdbc.queryForObject("SELECT count(*) FROM document_embeddings e JOIN document_chunks c USING(chunk_id) WHERE c.document_id=?", Long.class, doc)).isEqualTo(3);
+    }
+    @Test void indexStatusApiEnforcesAdminValidationAndNotFound() throws Exception {
+        long doc = indexFixture();
+        String path = "/api/admin/documents/" + doc + "/index-status";
+        org.springframework.security.test.context.TestSecurityContextHolder.clearContext();
+        mvc.perform(get(path).param("model", "model-a")).andExpect(status().isUnauthorized());
+        mvc.perform(get(path).param("model", "model-a").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("user").roles("USER")))
+                .andExpect(status().isForbidden());
+        var adminRequest = org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN");
+        mvc.perform(get(path).param("model", "model-a").with(adminRequest))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.data.status").value("NO_CHUNKS"))
+                .andExpect(jsonPath("$.data.missingChunks").value(0));
+        for (String model : List.of("", "invalid/model", "x".repeat(101), "model' OR 1=1")) {
+            mvc.perform(get(path).param("model", model).with(adminRequest)).andExpect(status().isBadRequest());
+        }
+        mvc.perform(get(path).with(adminRequest)).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/admin/documents/0/index-status").param("model", "model-a").with(adminRequest)).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/admin/documents/9223372036854775807/index-status").param("model", "model-a").with(adminRequest)).andExpect(status().isNotFound());
+        jdbc.update("DELETE FROM documents WHERE document_id=?", doc);
+        mvc.perform(get(path).param("model", "model-a").with(adminRequest)).andExpect(status().isNotFound());
+    }
 }
