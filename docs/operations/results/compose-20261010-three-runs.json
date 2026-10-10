@@ -1,0 +1,87 @@
+{
+  "environment": {
+    "startedAt": "2026-10-09T16:11:40.707870+00:00",
+    "commit": "fd917ef4b8905467a9261800f1bbdf6891d8c63b",
+    "trackedChanges": "",
+    "host": "Darwin 25.6.0 arm64",
+    "docker": "28.3.3",
+    "compose": "2.39.2-desktop.1",
+    "dockerResources": "8 CPUs / 8218316800 bytes",
+    "images": null,
+    "modelSha256": "52a5a49020e0b275d68f16ad505e9a03fe93f6999f4c04ea1a8160e1892a4f5e",
+    "conditions": "prebuilt images, existing volumes, sequential warm runs, 1s poll, 8s HTTP timeout; no RAG/provider calls"
+  },
+  "runs": [
+    {
+      "run": 1,
+      "status": "PASSED",
+      "startup": {
+        "seconds": 14.99,
+        "attempts": 10
+      },
+      "backend": {
+        "seconds": 9.922,
+        "attempts": 9,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.818,
+        "totalSeconds": 18.74
+      },
+      "postgres": {
+        "seconds": 2.327,
+        "attempts": 1,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.402,
+        "totalSeconds": 10.729
+      },
+      "persistence": "exact API detail equality after recreate and each recovery"
+    },
+    {
+      "run": 2,
+      "status": "PASSED",
+      "startup": {
+        "seconds": 16.816,
+        "attempts": 11
+      },
+      "backend": {
+        "seconds": 9.9,
+        "attempts": 9,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.99,
+        "totalSeconds": 18.89
+      },
+      "postgres": {
+        "seconds": 2.347,
+        "attempts": 1,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.393,
+        "totalSeconds": 10.74
+      },
+      "persistence": "exact API detail equality after recreate and each recovery"
+    },
+    {
+      "run": 3,
+      "status": "PASSED",
+      "startup": {
+        "seconds": 13.991,
+        "attempts": 9
+      },
+      "backend": {
+        "seconds": 10.982,
+        "attempts": 10,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.831,
+        "totalSeconds": 19.813
+      },
+      "postgres": {
+        "seconds": 1.255,
+        "attempts": 1,
+        "outageObserved": "/api/auth/login: HTTP 503",
+        "stopAndDetectionSeconds": 0.414,
+        "totalSeconds": 1.669
+      },
+      "persistence": "exact API detail equality after recreate and each recovery"
+    }
+  ],
+  "status": "PASSED",
+  "finishedAt": "2026-10-09T16:14:13.121889+00:00"
+}
