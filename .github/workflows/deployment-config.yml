@@ -1,0 +1,30 @@
+name: Deployment configuration
+on:
+  pull_request:
+    paths:
+      - 'infra/production/**'
+      - 'backend/Dockerfile'
+      - '.github/workflows/deployment-config.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'infra/production/**'
+      - 'backend/Dockerfile'
+      - '.github/workflows/deployment-config.yml'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: validation-only
+      JWT_SECRET: validation-only-secret-at-least-32-characters
+      AI_SERVICE_TOKEN: validation-only-token-at-least-32-characters
+      SITE_DOMAIN: example.invalid
+      MODEL_DIR: /tmp/finguard-model-validation
+      RELEASE_SHA: validation
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n infra/production/deploy.sh
+      - run: docker compose -f infra/production/compose.yml config --quiet
+      - run: python3 -m unittest discover -s infra/production/tests -v

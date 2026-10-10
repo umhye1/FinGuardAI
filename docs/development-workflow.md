@@ -84,3 +84,9 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 프론트엔드·백엔드·AI 모두 이슈 번호 기반 기능 브랜치를 사용한다. Git 브랜치 목록은
 디렉터리 트리가 아니며 브랜치명의 suffix로 작업 영역을 구분한다. 현재 PR base는 main으로
 통일한다. 실행·인증 정책·테스트는 `frontend/README.md`를 참고한다.
+
+## 첫 서버 배포
+
+운영용 별도 구성은 `infra/production/compose.yml`, 실행은 `infra/production/deploy.sh`를 사용한다.
+비용·DNS·모델·비밀값 준비, 다운타임과 복구 절차는 `docs/deployment/first-server.md`를 먼저 읽는다.
+배포 구성이 존재하는 것과 실제 AWS 배포 완료는 구분한다.
