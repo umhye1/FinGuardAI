@@ -1,4 +1,7 @@
 """Failure-sensitive checks: no Docker or network required."""
+import json
+import tempfile
+from pathlib import Path
 import unittest
 from unittest.mock import patch
 import lab
@@ -23,6 +26,20 @@ class SmokeTests(unittest.TestCase):
         with patch.dict(lab.os.environ, {'AI_OPENAI_API_KEY': 'secret',
                                         'COMPOSE_PROJECT_NAME': 'existing', 'PATH': '/bin'}, clear=True):
             self.assertEqual(lab.environment(), {'PATH': '/bin'})
+
+    def test_changed_persisted_row_is_rejected_before_new_inference(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state = Path(directory)
+            (state / 'sentinel.json').write_text(json.dumps({'analysisId': 1, 'inputText': 'original'}))
+            with patch.object(lab, 'STATE', state), patch.object(lab, 'login', return_value='token'), \
+                    patch.object(lab, 'identity', return_value={'email': 'ops@example.invalid'}), \
+                    patch.object(lab, 'request', side_effect=[
+                        'html', {'email': 'ops@example.invalid'},
+                        {'analysisId': 1, 'inputText': 'changed'},
+                    ]) as request:
+                with self.assertRaisesRegex(lab.CheckError, 'changed or missing'):
+                    lab.smoke()
+                self.assertEqual(request.call_count, 3)
 
     @patch.object(lab, 'compose')
     @patch.object(lab, 'smoke', side_effect=lab.CheckError('offline'))
