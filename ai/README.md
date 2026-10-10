@@ -88,20 +88,21 @@ API 구현은 [generateContent](https://ai.google.dev/api/generate-content)의 �
 
 ## 문서 인덱싱
 
-1. Spring Flyway V6까지 적용한다. 서버에 pgvector 확장이 설치되어 있어야 한다.
+1. Spring Flyway V9까지 적용한다. 서버에 pgvector 확장이 설치되어 있어야 한다.
 2. 관리자 문서 업로드 후 기존 작업 조회에서 COMPLETED를 확인한다.
 3. 같은 DB를 가리키는 `AI_DATABASE_URL` 또는 `AI_DATABASE_HOST/PORT/NAME/USER/PASSWORD`를 설정한다.
-4. 인덱싱 CLI를 실행한다. 이 단계는 **외부 임베딩 API를 호출**한다.
+4. `--dry-run`으로 호출 없는 계획을 확인한다. 실제 실행에서는 캐시 누락분에 **외부 임베딩 API 비용**이 발생한다.
 
 ```bash
+finguard-index --document-id 1 --dry-run
 finguard-index --document-id 1
 ```
 
 - 768차원 벡터를 기존 `document_chunks`와 분리된 `document_embeddings`에 저장한다.
 - 인덱싱 완료와 문서 텍스트 추출 완료는 별개다. 현재 인덱싱은 관리자 CLI 작업이며 HTTP 자동 재시도 작업은 아니다.
-- 모델별로 저장하며, 같은 문서 재인덱싱은 upsert한다. 반복 실행은 저장 중복을 만들지 않지만 임베딩 API 비용은 다시 발생할 수 있다.
+- 문서·본문·공급자/모델/처리 버전별 캐시를 재사용한다. 무변경 재실행은 provider 호출 0회이며, `--full`은 모든 청크를 다시 호출한다. 기존 벡터는 출처 정보가 없어 캐시로 자동 역수입하지 않는다.
 - provider 호출 중 DB 트랜잭션을 열어두지 않는다. 저장 직전에 문서 잠금과 청크 스냅샷을 대조한다. 변경/삭제되었으면 전체 저장을 거부한다.
-- 요청 하나에서 최대 2000개 청크를 처리하고 batch는 32개다. 작업 중단 시 CLI 재실행이 필요하다.
+- 요청 하나에서 최대 2000개 청크를 처리하고 batch는 32개다. 완료 batch는 캐시에 남아 CLI 재실행 시 재사용한다. 자동 retry는 아니다. [증분 임베딩 운영 안내](../docs/ai/incremental-embedding.md)를 참고한다.
 - 재처리로 삭제된 청크의 벡터는 FK cascade로 삭제된다. 원문 해시가 달라진 벡터와 PROCESSING/FAILED 문서는 검색에서 제외한다.
 - 벡터는 정확 코사인 검색이며 키워드 순위와 RRF로 결합한다. 임베딩이 없으면 키워드만 사용한다. HNSW·학습형 reranker는 미구현이다.
 

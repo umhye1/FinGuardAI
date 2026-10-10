@@ -1,0 +1,28 @@
+{
+  "recordedAt": "2026-10-10T14:20:38.483727+09:00",
+  "implementationCommit": "4b4005e",
+  "testCommit": "49018b3fe6ab669d3d76059a957ade06a8805372",
+  "host": "macOS-26.6.2-arm64-arm-64bit",
+  "python": "3.11.2",
+  "postgres": "16.14",
+  "pgvector": "0.8.2",
+  "postgresImage": "sha256:00ba258a66dac104fd5171074a0084462a64a1369d8513f3d0a634e2f24d15bc",
+  "dockerResources": {
+    "cpus": 8,
+    "memoryBytes": 8218316800
+  },
+  "compose": "2.39.2-desktop.1",
+  "conditions": "One sample per scenario; incremental then full; warm cache; synthetic deterministic provider; local pgvector; no external calls; concurrent Spring tests during final capture, not a timing benchmark",
+  "sourceSha256": {
+    "ai/src/finguard_ai/indexing.py": "d5ec41e4a37a46037a2677c9405f5eed927ac32909a8a66d1ada3f1fce17d007",
+    "ai/src/finguard_ai/repository.py": "a3fce2112615c8a6de7ad4f7ca4816d685b01dc19111cd916a30a9d82e600968",
+    "ai/tests/test_incremental_repository.py": "30d4a6f16397b17b7a586a191621c7cab33badf4ed1be27c941778cd9ee4b845",
+    "backend/src/main/resources/db/migration/V9__document_embedding_cache.sql": "2b5573ed53a7f6f83591bf4f70a29ffa6584d7a48d78f7fa279dcc254ebf945e"
+  },
+  "resultsSha256": {
+    "change-0.json": "2ee39977820b709f3900d8dba5db5626a583f42a60b88add76707e99e868aa7b",
+    "change-100.json": "988815afb489c0feb952ab996109d734c776e3cd3141d7ca3b18778919bd2cde",
+    "change-1.json": "5cc888a1e8b9a4b20c36ff10d1f85209f1ed9791146e82bec071fb2eb3beeaaa",
+    "change-10.json": "018e908fd7a780b4940f323b3c9861599908a4e6d6cb13934ef8df9539d84c56"
+  }
+}

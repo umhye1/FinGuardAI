@@ -87,19 +87,7 @@ class CorpusRepository:
             raise ValueError("Invalid index snapshot")
         with self.pool.connection() as conn:
             # Serialize with Spring's completion/deletion lock; provider work has already finished.
-            doc = conn.execute(
-                "SELECT status FROM documents WHERE document_id = %s FOR UPDATE", (document_id,)
-            ).fetchone()
-            if not doc or doc["status"] != "COMPLETED":
-                raise StaleDocument("Document no longer complete")
-            current = conn.execute(
-                "SELECT chunk_id, content FROM document_chunks WHERE document_id = %s ORDER BY chunk_index",
-                (document_id,),
-            ).fetchall()
-            if [(r["chunk_id"], r["content"]) for r in current] != [
-                (c.chunk_id, c.content) for c in snapshot
-            ]:
-                raise StaleDocument("Document changed during indexing")
+            self._validate_snapshot(conn, document_id, snapshot)
             for chunk, vector in zip(snapshot, vectors):
                 conn.execute(
                     """
@@ -107,8 +95,55 @@ class CorpusRepository:
                     VALUES (%s, %s, %s, %s::vector)
                     ON CONFLICT (chunk_id, embedding_model) DO UPDATE
                     SET content_hash = EXCLUDED.content_hash, embedding = EXCLUDED.embedding, updated_at = now()
+                    WHERE document_embeddings.content_hash IS DISTINCT FROM EXCLUDED.content_hash
+                       OR document_embeddings.embedding IS DISTINCT FROM EXCLUDED.embedding
                 """,
                     (chunk.chunk_id, model, chunk.content_hash, json.dumps(vector, allow_nan=False)),
+                )
+
+    def _validate_snapshot(self, conn, document_id: int, snapshot: list[Chunk]):
+        if not snapshot or any(c.document_id != document_id for c in snapshot):
+            raise ValueError("Invalid document snapshot")
+        doc = conn.execute(
+            "SELECT status, title, COALESCE(evidence_metadata::jsonb, '{}'::jsonb) AS metadata "
+            "FROM documents WHERE document_id = %s FOR UPDATE", (document_id,)
+        ).fetchone()
+        if not doc or doc["status"] != "COMPLETED":
+            raise StaleDocument("Document no longer complete")
+        if any(c.title != doc["title"] or c.metadata != doc["metadata"] for c in snapshot):
+            raise StaleDocument("Document metadata changed during indexing")
+        current = conn.execute(
+            "SELECT chunk_id, content FROM document_chunks WHERE document_id = %s ORDER BY chunk_index",
+            (document_id,),
+        ).fetchall()
+        if [(r["chunk_id"], r["content"]) for r in current] != [(c.chunk_id, c.content) for c in snapshot]:
+            raise StaleDocument("Document changed during indexing")
+
+    def cached_embeddings(self, document_id: int, profile_hash: str, hashes: list[str]):
+        with self.pool.connection() as conn:
+            rows = conn.execute(
+                "SELECT content_hash, embedding::text AS embedding FROM document_embedding_cache "
+                "WHERE document_id = %s AND profile_hash = %s AND content_hash = ANY(%s)",
+                (document_id, profile_hash, hashes),
+            ).fetchall()
+        return {r["content_hash"]: json.loads(r["embedding"]) for r in rows}
+
+    def cache_batch(self, document_id: int, snapshot: list[Chunk], profile_hash: str,
+                    entries: dict[str, list[float]]):
+        # Durable completed batches, invisible to search until publish() succeeds.
+        # The same document lock coordinates with Spring reprocessing and deletion.
+        with self.pool.connection() as conn:
+            self._validate_snapshot(conn, document_id, snapshot)
+            allowed = {c.content_hash for c in snapshot}
+            if not entries.keys() <= allowed:
+                raise ValueError("Cache entry outside snapshot")
+            for content_hash, vector in entries.items():
+                conn.execute(
+                    "INSERT INTO document_embedding_cache(document_id, profile_hash, content_hash, embedding) "
+                    "VALUES (%s, %s, %s, %s::vector) "
+                    "ON CONFLICT (document_id, profile_hash, content_hash) DO UPDATE "
+                    "SET embedding = EXCLUDED.embedding, created_at = now()",
+                    (document_id, profile_hash, content_hash, json.dumps(vector, allow_nan=False)),
                 )
 
     def search(self, vector: list[float], model: str, limit: int, min_score: float) -> list[Chunk]:

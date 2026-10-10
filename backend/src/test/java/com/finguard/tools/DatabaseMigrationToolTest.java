@@ -36,7 +36,8 @@ class DatabaseMigrationToolTest {
             try (ResultSet r=s.executeQuery("SELECT count(*) FROM phishing_keywords WHERE keyword='저금리대출'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(1); }
             try (ResultSet r=s.executeQuery("SELECT content FROM document_chunks WHERE document_id=80")) { r.next(); assertThat(r.getString(1)).isEqualTo("original content"); }
             try (ResultSet r=s.executeQuery("SELECT nextval('document_seq')")) { r.next(); assertThat(r.getLong(1)).isGreaterThan(80); }
-            try (ResultSet r=s.executeQuery("SELECT max(version::int) FROM flyway_schema_history WHERE type <> 'BASELINE'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(8); }
+            try (ResultSet r=s.executeQuery("SELECT count(*) FROM document_embedding_cache")) { r.next(); assertThat(r.getInt(1)).isZero(); }
+            try (ResultSet r=s.executeQuery("SELECT max(version::int) FROM flyway_schema_history WHERE type <> 'BASELINE'")) { r.next(); assertThat(r.getInt(1)).isEqualTo(9); }
         }
     }
     @Test void rejectsUnknownColumnsWithoutBaselining() throws Exception {

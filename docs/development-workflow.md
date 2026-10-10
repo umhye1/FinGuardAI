@@ -71,7 +71,7 @@ docker compose --env-file infra/.env -f infra/compose.yml up --build -d
 docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index --document-id 1
 ```
 
-이 인덱싱은 외부 임베딩 API 비용이 발생한다. Gemini 키가 필요하다. 작업 완료 후 같은 내부 API로 RAG 질문을 처리한다.
+먼저 같은 명령에 `--dry-run`을 붙여 계획을 확인한다. 실제 인덱싱은 캐시 누락분에 외부 임베딩 API 비용이 발생하며 설정한 공급자의 키가 필요하다. [증분 임베딩 안내](ai/incremental-embedding.md)를 따른다. 작업 완료 후 같은 내부 API로 RAG 질문을 처리한다.
 
 중단 시 `docker compose --env-file infra/.env -f infra/compose.yml down`을 사용한다. `-v`는 DB·파일 볼륨을 삭제하므로 정상 종료에 사용하지 않는다.
 
