@@ -1,0 +1,28 @@
+name: Compose operations checks
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/compose-ops.yml'
+  push:
+    branches: [main, dev]
+    paths:
+      - 'infra/**'
+      - '.github/workflows/compose-ops.yml'
+permissions:
+  contents: read
+jobs:
+  smoke-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m unittest discover -s infra/ops -p 'test_*.py' -v
+      - name: Validate merged Compose without printing credentials
+        env:
+          POSTGRES_PASSWORD: ci-placeholder
+          JWT_SECRET: ci-placeholder-not-for-runtime
+          AI_SERVICE_TOKEN: ci-placeholder-not-for-runtime-32
+        run: docker compose -f infra/compose.yml -f infra/compose.ops.yml config --quiet

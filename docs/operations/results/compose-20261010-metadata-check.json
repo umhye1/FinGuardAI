@@ -1,0 +1,93 @@
+{
+  "environment": {
+    "startedAt": "2026-10-09T16:14:32.100389+00:00",
+    "commit": "f7717ba55cc37e34e3b713fef2e332447b847c00",
+    "trackedChanges": "docs/development-workflow.md |  7 +++++++\n infra/ops/test_lab.py        | 17 +++++++++++++++++\n 2 files changed, 24 insertions(+)",
+    "host": "Darwin 25.6.0 arm64",
+    "docker": "28.3.3",
+    "compose": "2.39.2-desktop.1",
+    "dockerResources": "8 CPUs / 8218316800 bytes",
+    "images": [
+      {
+        "ID": "sha256:f11dc648911827ce4b403f32381ca267dcf3ab3e355885126722f16027fce166",
+        "ContainerName": "finguard-ops-lab-ai-1",
+        "Repository": "finguard-ops-lab-ai",
+        "Tag": "latest",
+        "Platform": "linux/arm64",
+        "Size": 146202276,
+        "LastTagTime": "2026-10-09T16:10:48.1349268Z"
+      },
+      {
+        "ID": "sha256:00ba258a66dac104fd5171074a0084462a64a1369d8513f3d0a634e2f24d15bc",
+        "ContainerName": "finguard-ops-lab-postgres-1",
+        "Repository": "pgvector/pgvector",
+        "Tag": "pg16",
+        "Platform": "linux/arm64",
+        "Size": 154043724,
+        "LastTagTime": "2026-05-17T10:09:34.024986086Z"
+      },
+      {
+        "ID": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+        "ContainerName": "finguard-ops-lab-redis-1",
+        "Repository": "redis",
+        "Tag": "7-alpine",
+        "Platform": "linux/arm64/v8",
+        "Size": 16791444,
+        "LastTagTime": "2026-09-06T07:33:08.993739762Z"
+      },
+      {
+        "ID": "sha256:653b24f302c26164483bc3a1ca0d9a44c0b21a2b59165e51adbec8604a4e59bf",
+        "ContainerName": "finguard-ops-lab-backend-1",
+        "Repository": "finguard-ops-lab-backend",
+        "Tag": "latest",
+        "Platform": "linux/arm64",
+        "Size": 184150676,
+        "LastTagTime": "2026-10-09T16:10:05.285935711Z"
+      },
+      {
+        "ID": "sha256:2e3ff4d9922fe3ab9b3915b0300dfb9f1807c4f787777670a64c1c033d5cbacb",
+        "ContainerName": "finguard-ops-lab-frontend-1",
+        "Repository": "finguard-ops-lab-frontend",
+        "Tag": "latest",
+        "Platform": "linux/arm64",
+        "Size": 26070079,
+        "LastTagTime": "2026-10-09T16:09:35.036901586Z"
+      }
+    ],
+    "sourceSha256": {
+      "infra/compose.yml": "cf3187e7985d7fcd7e563a98e0b7c024ffe964ed54b6fa9b0832ba67cb137e23",
+      "infra/compose.ops.yml": "dd6ffd77672a24e94cdfb7d8ed922d49eec18ecff621e1e6661e571e5e201af6",
+      "infra/ops/lab.py": "e71ac6a16d8c1ff29af148bb97fdded19901e2f6740a7523d5f7a799e792554e",
+      "ai/data/examples/synthetic-train.jsonl": "2dbc82367aa43415b1ec7e32244d45bea6e2a86f75b6fa955d50c82df868ff56"
+    },
+    "modelSha256": "52a5a49020e0b275d68f16ad505e9a03fe93f6999f4c04ea1a8160e1892a4f5e",
+    "conditions": "prebuilt images, existing volumes, sequential warm runs, 1s poll, 8s HTTP timeout; no RAG/provider calls"
+  },
+  "runs": [
+    {
+      "run": 1,
+      "status": "PASSED",
+      "startup": {
+        "seconds": 14.22,
+        "attempts": 9
+      },
+      "backend": {
+        "seconds": 9.86,
+        "attempts": 9,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 9.031,
+        "totalSeconds": 18.89
+      },
+      "postgres": {
+        "seconds": 2.363,
+        "attempts": 1,
+        "outageObserved": "/api/auth/login: TimeoutError",
+        "stopAndDetectionSeconds": 8.392,
+        "totalSeconds": 10.756
+      },
+      "persistence": "exact API detail equality after recreate and each recovery"
+    }
+  ],
+  "status": "PASSED",
+  "finishedAt": "2026-10-09T16:15:21.612625+00:00"
+}

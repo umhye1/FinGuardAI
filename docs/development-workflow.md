@@ -85,6 +85,12 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 디렉터리 트리가 아니며 브랜치명의 suffix로 작업 영역을 구분한다. 현재 PR base는 main으로
 통일한다. 실행·인증 정책·테스트는 `frontend/README.md`를 참고한다.
 
+## 로컬 운영 실험
+
+클라우드 없이 기동·복구·DB 볼륨 보존을 확인하려면
+[Compose 운영 실험](operations/compose-recovery-lab.md)을 따른다.
+기존 환경과 분리된 `finguard-ops-lab`에서 유료 AI 호출 없이 실행하며,
+컨테이너 Running 대신 인증·로컬 분류·저장 데이터 응답으로 성공을 판정한다.
 ## 첫 서버 배포
 
 운영용 별도 구성은 `infra/production/compose.yml`, 실행은 `infra/production/deploy.sh`를 사용한다.
