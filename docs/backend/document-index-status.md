@@ -69,3 +69,9 @@ Playwright는 모의 API로 데스크톱/모바일에서 모델 변경·누락/�
 2026-09-30 로컬 실행: Spring 전체 31 passed(실패/skip 0), 프론트 단위 5 passed,
 기존 화면 Playwright 4 passed 및 신규 진단 화면 2 passed(각 desktop/mobile), 프론트 production build 통과.
 공급자 호출 0회. 임시 Testcontainers DB로 검증했으며 실제 사용자 데이터와 배포 환경은 변경하지 않았다.
+
+## 증분 갱신 후속 (#45)
+
+[증분 임베딩 CLI](../ai/incremental-embedding.md)에서 호출 없는 계획과 변경분 실행을 지원한다.
+진단은 활성 검색 벡터만 조회하므로 batch 캐시 저장만으로 INDEXED가 되지는 않는다.
+성공적으로 공개한 뒤 이 API를 새로 조회한다. 모델 revision별 진단이나 유료 실행 버튼은 추가하지 않았다.
