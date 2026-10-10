@@ -3,7 +3,7 @@ from test_evidence import corpus
 
 from finguard_ai.config import Settings
 from finguard_ai.errors import ServiceUnavailable, StaleDocument
-from finguard_ai.indexing import index_document
+from finguard_ai.indexing import EmbeddingProfile, index_document
 from finguard_ai.rag import RagService
 from finguard_ai.schemas import GeneratedAnswer
 
@@ -25,6 +25,12 @@ class Repository:
 
     def document_chunks(self, doc_id):
         return [] if self.stale else self.chunks
+
+    def cached_embeddings(self, *args):
+        return {}
+
+    def cache_batch(self, *args):
+        pass
 
     def publish(self, *args):
         self.published = args
@@ -84,13 +90,14 @@ def test_empty_corpus_and_missing_document_do_not_generate():
     assert rag.answer("송금 피해 질문").status == "INSUFFICIENT_EVIDENCE"
     assert provider.last_payload is None
     with pytest.raises(StaleDocument):
-        index_document(repository, provider, 10, "test-model")
+        index_document(repository, provider, 10, EmbeddingProfile("test", "test-model"))
 
 
 def test_indexing_passes_snapshot_and_vectors_to_atomic_publish():
     repository = Repository()
     provider = Provider(None)
-    assert index_document(repository, provider, 10, "embedding-model") == 1
+    assert index_document(repository, provider, 10,
+                          EmbeddingProfile("test", "embedding-model"))["chunkCount"] == 1
     assert repository.published[0] == 10
     assert repository.published[3] == "embedding-model"
 

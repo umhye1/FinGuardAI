@@ -27,6 +27,10 @@ class Settings(BaseSettings):
         default="gemini-embedding-001", min_length=1, max_length=70, pattern=r"^[a-zA-Z0-9._-]+$"
     )
     embedding_dimensions: Literal[768] = 768
+    embedding_revision: str = Field(default="unversioned", min_length=1, max_length=80,
+                                    pattern=r"^[a-zA-Z0-9._-]+$")
+    embedding_processing_version: str = Field(default="chunker-v1-raw-utf8", min_length=1, max_length=80,
+                                              pattern=r"^[a-zA-Z0-9._-]+$")
     request_timeout_seconds: float = Field(default=4.0, gt=0, le=60)
     retrieval_top_k: int = Field(default=5, ge=1, le=10)
     retrieval_min_score: float = Field(default=0.6, ge=-1, le=1)

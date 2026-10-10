@@ -18,7 +18,7 @@ from finguard_ai.config import Settings
 from finguard_ai.corpus import import_corpus, load_manifest
 from finguard_ai.errors import ServiceUnavailable
 from finguard_ai.evaluation import QUESTIONS
-from finguard_ai.indexing import index_document
+from finguard_ai.indexing import EmbeddingProfile, index_document
 from finguard_ai.provider import create_provider
 from finguard_ai.rag import RagService
 from finguard_ai.repository import CorpusRepository
@@ -186,7 +186,7 @@ def main():
                 ids = import_corpus(repo.pool, records)
                 for doc, (_, m, _, _) in zip(ids, records):
                     if m.kind == "OFFICIAL_GUIDANCE":
-                        index_document(repo, provider, doc, settings.embedding_model)
+                        index_document(repo, provider, doc, EmbeddingProfile.from_settings(settings))
                 report["cases"] = run_cases(repo, provider, settings, a.max_cases)
                 report["status"] = (
                     "COMPLETED_WITH_FAILURES"
