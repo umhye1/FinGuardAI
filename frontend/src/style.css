@@ -663,3 +663,10 @@ td pre {
     margin-left: 15px;
   }
 }
+
+.documents-table {
+  min-width: 600px;
+}
+.documents-table .text-button {
+  white-space: nowrap;
+}

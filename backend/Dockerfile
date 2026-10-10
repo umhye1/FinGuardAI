@@ -6,6 +6,8 @@ RUN gradle bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 RUN useradd --uid 10001 --create-home app && mkdir /app/uploads && chown app /app/uploads
 COPY --from=build /workspace/build/libs/finguard-api-0.0.1-SNAPSHOT.jar /app/app.jar
 USER app

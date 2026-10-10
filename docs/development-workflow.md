@@ -91,3 +91,8 @@ docker compose --env-file infra/.env -f infra/compose.yml exec ai finguard-index
 [Compose 운영 실험](operations/compose-recovery-lab.md)을 따른다.
 기존 환경과 분리된 `finguard-ops-lab`에서 유료 AI 호출 없이 실행하며,
 컨테이너 Running 대신 인증·로컬 분류·저장 데이터 응답으로 성공을 판정한다.
+## 첫 서버 배포
+
+운영용 별도 구성은 `infra/production/compose.yml`, 실행은 `infra/production/deploy.sh`를 사용한다.
+비용·DNS·모델·비밀값 준비, 다운타임과 복구 절차는 `docs/deployment/first-server.md`를 먼저 읽는다.
+배포 구성이 존재하는 것과 실제 AWS 배포 완료는 구분한다.
